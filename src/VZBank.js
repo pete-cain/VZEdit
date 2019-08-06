@@ -161,7 +161,7 @@ class Operation {
         //console.log("Op Checksum: "+origChecksum+" = "+ this.checkSum);
     }
     xtractTones() {
-        while (this.tones > 0) this.tones.pop();
+        while (this.tones.length > 0) this.tones.pop();
         for (var i = 0; i < this.startSD.length; i++) {
             var startPoint = this.startSD[i];
             this.tones.push(
@@ -177,7 +177,7 @@ class Operation {
         return this.tones[toneNumber];
     }
     calculateChecksum() {
-        newChecksum = 0;
+        let newChecksum = 0;
         for (var i = 0; i < this.raw.length; i += 2) {
             newChecksum += this.raw[i] * 16 + this.raw[i + 1];
             newChecksum = newChecksum % 128;
@@ -185,7 +185,7 @@ class Operation {
         return 128 - newChecksum;
     }
     isEmpty() {
-        sum = 0;
+        let sum = 0;
         for (var i = 0; i < this.raw.length; i++) {
             sum += this.raw[i];
         }
