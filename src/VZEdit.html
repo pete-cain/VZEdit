@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Casio VZ Editor</title>
+        <style type="text/css">
+            .hidden {
+                visibility: visible;
+                width: 100px;
+                height: 20px;
+                margin: 0px;
+                padding: 0px;
+                border-style: none;
+                border-width: 0px;
+                max-width: 0px;
+                max-height: 0px;
+            }
+        </style>
+        <script src="jquery-2.1.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="vzedit.css" />
+    </head>
+    <body>
+        <h1>Casio VZ Editor</h1>
+        <object
+            id="Jazz1"
+            classid="CLSID:1ACE1618-1C7D-4561-AEE1-34842AA85E90"
+            class="hidden"
+        >
+            <object id="Jazz2" type="audio/x-jazz" class="hidden">
+                <p style="visibility: visible;">
+                    This page requires
+                    <a href="http://jazz-soft.net">Jazz-Plugin </a> ...
+                </p>
+            </object>
+        </object>
+        <div id="global"></div>
+        <div id="lines" class="VZlines"></div>
+
+        <p></p>
+        <div id="modules"></div>
+
+        <div id="envelopes" class="hideEnvelope"></div>
+
+        <div id="keyFollows" class="hideEnvelope"></div>
+
+        <div id="modulation"></div>
+
+        <div
+            id="vZbank"
+            ondragover="allowDrop(event)"
+            ondrop="readSysEx(event)"
+        ></div>
+
+        <div id="buttons">
+            <button
+                onmousedown="Jazz.MidiOutLong([0x90,60,120,64,120,67,120]);"
+                onmouseup="Jazz.MidiOutLong([0x80,60,0,64,0,67,0]);"
+            >
+                Play!
+            </button>
+
+            <button onmousedown="send_data_to_vz();">Transmit</button>
+
+            <button onclick='window.open("VZEditorReferenceGuide.pdf" )'>
+                Help
+            </button>
+
+            MIDI Out:
+            <select id="selectmidi" onchange="changemidi();"></select>
+            Channel:
+            <input
+                type="text"
+                id="midiChannelTxt"
+                onchange="changeMidiChannel(value)"
+            />
+        </div>
+
+        <script>
+            var Jazz = document.getElementById("Jazz1");
+            if (!Jazz || !Jazz.isJazz) Jazz = document.getElementById("Jazz2");
+            function changemidi() {
+                Jazz.MidiOutOpen(select.options[select.selectedIndex].value);
+            }
+            var select = document.getElementById("selectmidi");
+            try {
+                var list = Jazz.MidiOutList();
+                for (var i in list) {
+                    select[i] = new Option(list[i], list[i], i == 0, i == 0);
+                }
+                document.getElementById("selectmididiv").className = "";
+            } catch (err) {}
+            if (Jazz.isJazz) {
+                Jazz.MidiOutOpen(0);
+            }
+        </script>
+        <script type="module" src="VZEdit.js"></script>
+    </body>
+</html>
