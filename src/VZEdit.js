@@ -8,93 +8,88 @@ const SYSEX_END = [0xf7];
 var sourceEnvelope = 0;
 
 // create the tone object
-var vzTone = new VZTone();
-var bank = new VzBank();
-var reader = new FileReader();
+const vzTone = new VZTone();
+const bank = new VZBank();
+const reader = new FileReader();
 
-var envelopeLock = [0, 0, 0, 0, 0, 0, 0, 0];
-var lock = [];
+const lock = [];
 lock[0] = [0, 0, 0, 0, 0, 0, 0, 0]; // not used .... for module copy
 lock[1] = [0, 0, 0, 0, 0, 0, 0, 0]; // envelope
 lock[2] = [0, 0, 0, 0, 0, 0, 0, 0]; // key follow
 
 window.internalToneData = [];
 
-for (var i = 1; i < 5; i++) {
-    document.getElementById("lines").innerHTML +=
-        "<div class = 'VZline' id='line" + i + "'></div";
-    document.getElementById("line" + i).innerHTML =
+const byId = document.getElementById;
+
+for (let i = 1; i < 5; i++) {
+    byId("lines").innerHTML +=
+        "<div class = 'VZline' id='line" + i + "'></div>";
+    byId("line" + i).innerHTML =
         "<input type='submit' value='' id='sum' class='sum' >";
-    document.getElementById("line" + i).innerHTML +=
+    byId("line" + i).innerHTML +=
         "<input type='submit' value='' class='mix'  id='mixType" +
         i +
         "' onclick = 'lineMix(" +
         i +
         ")' >";
-    document.getElementById("line" + i).innerHTML +=
+    byId("line" + i).innerHTML +=
         "<input type='submit' value='' id='connector' class='connector' >";
     if (i < 4) {
-        document.getElementById("line" + i).innerHTML +=
+        byId("line" + i).innerHTML +=
             "<input type='submit' value='' class='line'  id='extPhase" +
             i +
             "' onclick = 'extPhase(" +
             i +
             ")' >";
     } else {
-        document.getElementById("line" + i).innerHTML +=
+        byId("line" + i).innerHTML +=
             "<input type='submit' value='' class='line'  id='extPhase" +
             i +
             "' >";
     }
 
-    document.getElementById("line" + i).style.left = 25 * (i - 1) + "%";
+    byId("line" + i).style.left = 25 * (i - 1) + "%";
 }
 
-for (var i = 1; i < 9; i++) {
-    document.getElementById("modules").innerHTML +=
-        "<div class='VZmodule' id='M" + i + "'></div>";
-    document.getElementById("M" + i).style.left = 12 * (i - 1) + "%";
-    document.getElementById("M" + i).innerHTML = buildModule(i);
-    document.getElementById("detune_M" + i).innerHTML = buildDetune(i);
-    document.getElementById("wave_M" + i).innerHTML = buildWave(i);
-    document.getElementById("envelope_M" + i).innerHTML = buildEnvelopeModules(
-        i
-    );
-    document.getElementById(
-        "modulation_M" + i
-    ).innerHTML = buildModuleModulation(i);
+for (let i = 1; i < 9; i++) {
+    byId("modules").innerHTML += "<div class='VZmodule' id='M" + i + "'></div>";
+    byId("M" + i).style.left = 12 * (i - 1) + "%";
+    byId("M" + i).innerHTML = buildModule(i);
+    byId("detune_M" + i).innerHTML = buildDetune(i);
+    byId("wave_M" + i).innerHTML = buildWave(i);
+    byId("envelope_M" + i).innerHTML = buildEnvelopeModules(i);
+    byId("modulation_M" + i).innerHTML = buildModuleModulation(i);
 }
-document.getElementById("global").innerHTML = buildGlobal();
-document.getElementById("envelopes").innerHTML = buildEnvelope();
-document.getElementById("modulation").innerHTML = buildModulation();
-document.getElementById("vZbank").innerHTML = buildVZbank();
+byId("global").innerHTML = buildGlobal();
+byId("envelopes").innerHTML = buildEnvelope();
+byId("modulation").innerHTML = buildModulation();
+byId("vZbank").innerHTML = buildVZbank();
 
-var envCanvas = document.getElementById("envelope");
+var envCanvas = byId("envelope");
 var envContext = envCanvas.getContext("2d");
 var envMouseState = 0;
 drawEnvelope(envCanvas, 0);
 
-document.getElementById("keyFollows").innerHTML = buildKF();
-var kfCanvas = document.getElementById("kf");
+byId("keyFollows").innerHTML = buildKF();
+var kfCanvas = byId("kf");
 var kfContext = kfCanvas.getContext("2d");
 var kfMouseState = 0;
 drawKFBars(kfCanvas, 0, 0);
 drawKF(kfCanvas, 0, 0);
 
 var envCanvases = [];
-var envContexts = [];
 var waveCanvases = [];
 var kFCanvases = [];
 
-for (var i = 1; i < 9; i++) {
-    waveCanvases[i - 1] = document.getElementById("waveForm" + i);
+for (let i = 1; i < 9; i++) {
+    waveCanvases[i - 1] = byId("waveForm" + i);
     renderOsc(waveCanvases[i - 1], i - 1);
-    kFCanvases[i - 1] = document.getElementById("keyFollow" + i);
+    kFCanvases[i - 1] = byId("keyFollow" + i);
     drawKF(kFCanvases[i - 1], i - 1, 0);
 }
 
-for (var i = 1; i < 10; i++) {
-    envCanvases[i - 1] = document.getElementById("envelope" + i);
+for (let i = 1; i < 10; i++) {
+    envCanvases[i - 1] = byId("envelope" + i);
     drawEnvelope(envCanvases[i - 1], i - 1);
 }
 
@@ -121,7 +116,7 @@ function buildVZbank() {
 }
 
 function buildModulation() {
-    modulationString = "";
+    let modulationString = "";
     modulationString += buildPitchEnv();
     modulationString += buildModulationType("vibrato");
     modulationString += buildModulationType("tremolo");
@@ -129,7 +124,7 @@ function buildModulation() {
 }
 
 function buildPitchEnv() {
-    pitchEnvString = "";
+    let pitchEnvString = "";
     pitchEnvString += "<div id='pitchEnvelope'>";
     pitchEnvString += "Pitch Envelope <br>";
     pitchEnvString +=
@@ -158,7 +153,7 @@ function buildModulationType(type) {
     var modType = 1;
     if (type == "tremolo") modType = 2;
 
-    modulationString = "";
+    let modulationString = "";
     modulationString += "<div id='" + type + "'>";
     modulationString += type + "<br>";
     modulationString +=
@@ -204,7 +199,7 @@ function buildModulationType(type) {
 }
 
 function buildGlobal() {
-    globalString = "";
+    let globalString = "";
     globalString +=
         "<input type='text' id='toneName' onchange='setToneName()'> Tone Name <br>";
     globalString +=
@@ -216,9 +211,9 @@ function buildGlobal() {
 }
 
 function setTotalLevel() {
-    level = parseInt($("#TotalVZLevel").val());
+    let level = parseInt($("#TotalVZLevel").val());
     vzTone.setLevel(level);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function buildModule(module) {
@@ -340,13 +335,13 @@ function buildDetune(module) {
     detuneString +=
         "<input type='range' min='0' max='127' step='1' value='0' id='det_note_M" +
         module +
-        "' onchange='send_data_to_vz()' oninput='setDetune(" +
+        "' onchange='window.send_data_to_vz()' oninput='setDetune(" +
         module +
         ")'> Coarse";
     detuneString +=
         "<input type='range' min='0' max='63' step='1' value='0'	id='det_cent_M" +
         module +
-        "' onchange='send_data_to_vz()' oninput='setDetune(" +
+        "' onchange='window.send_data_to_vz()' oninput='setDetune(" +
         module +
         ")'> Fine";
     return detuneString;
@@ -355,7 +350,7 @@ function buildDetune(module) {
 function loadTone(num) {
     vzTone.initFromHexArray(convertLongMsg2Short(bank.getToneArray(num)));
     renderAll();
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 function buildEnvelopeModules(module) {
     envelopeModuleString =
@@ -511,50 +506,50 @@ function setModulation(type) {
 function setModvibrato() {
     type = "vibrato";
     setModulation(type);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setModtremolo() {
     type = "tremolo";
     setModulation(type);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function selectAmpCurve(module, value) {
     var curve = parseInt(value);
     vzTone.setVelCurve(module - 1, curve);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function nextAmpCurve(module) {
     value = (vzTone.getVelCurve(module - 1) + 1) % 8;
     vzTone.setVelCurve(module - 1, value);
     setCurveImg(module, value);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setVelocitySensitivity(module, value) {
     var sens = parseInt(value);
     vzTone.setVelSensitivity(module - 1, sens);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setEnvDepth(module) {
     level = parseInt($("#envDepth" + module).val());
     vzTone.setEnvelopeDepth(module - 1, level);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setPitchEnvDepth() {
     level = parseInt($("#pitchEnvDepth").val());
     vzTone.pitchEnvDepth = level;
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setModSens(module) {
     level = parseInt($("#modSens" + module).val());
     vzTone.setModulationSensitivity(module - 1, level);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function renderAll() {
@@ -651,7 +646,7 @@ function toggleModuleUI(module) {
         $("#module_enabled_M" + module).addClass("inactive");
         $("#module_enabled_M" + module).removeClass("active");
     }
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setCurveImg(module, value) {
@@ -683,23 +678,23 @@ function togglePosNegUI(el, module) {
         el.src = "positive.jpg";
         el.className = "positive";
     }
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setOctave() {
     vzTone.octave = parseInt($("#octave").val());
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setToneName() {
     vzTone.name = $("#toneName").val();
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function pitchChangeRange() {
     if ($("#pitchRange").is(":checked")) vzTone.pitchEnvRange = 1;
     else vzTone.pitchEnvRange = 0;
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function extPhase(line) {
@@ -711,7 +706,7 @@ function extPhase(line) {
         $("#extPhase" + line).addClass("extPhase");
         $("#extPhase" + line).removeClass("line");
     }
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function lockEnvelopeModule(module, type) {
@@ -1134,12 +1129,12 @@ function editEnvelopeTxt(step, type, value) {
 
     updateEnvelope(envCanvas);
     drawEnvelopePoints(envCanvas);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function editKFTxt(module) {
     for (var i = 0; i < 8; i++) {}
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function drawEnvelopePoints(envCanvas, nodeProximity) {
@@ -1179,13 +1174,10 @@ function drawEnvelopePoints(envCanvas, nodeProximity) {
 
 function updateEnvelopeTable() {
     for (var i = 0; i < 8; i++) {
-        document.getElementById("l" + (i + 1)).value = Math.floor(
+        byId("l" + (i + 1)).value = Math.floor(
             vzTone.getEnvelopeLevel(sourceEnvelope, i)
         );
-        document.getElementById("r" + (i + 1)).value = vzTone.getEnvelopeTime(
-            sourceEnvelope,
-            i
-        );
+        byId("r" + (i + 1)).value = vzTone.getEnvelopeTime(sourceEnvelope, i);
     }
 }
 
@@ -1205,10 +1197,10 @@ function updateKFTable() {
         "B"
     ];
     for (var i = 0; i < 6; i++) {
-        document.getElementById("kf_level" + (i + 1)).value = Math.floor(
+        byId("kf_level" + (i + 1)).value = Math.floor(
             vzTone.getKeyFollowLevel(sourceEnvelope, i)
         );
-        document.getElementById("kf_note" + (i + 1)).value =
+        byId("kf_note" + (i + 1)).value =
             notes[vzTone.getKeyFollowNote(sourceEnvelope, i) % 12] +
             Math.floor(vzTone.getKeyFollowNote(sourceEnvelope, i) / 12);
     }
@@ -1267,7 +1259,7 @@ function doKFMouseMove(kfCanvas, evt) {
 
 function doKFMouseUp(kfCanvas, evt) {
     kfMouseState = 0;
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function doKFMouseDown(kfCanvas, evt) {
@@ -1327,7 +1319,7 @@ function doMouseUp(envCanvas, evt) {
     }
     envMouseState = 0;
     kfMouseState = 0;
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 envCanvas.addEventListener(
@@ -1407,7 +1399,7 @@ function calculateChecksum(SysexData) {
     return 128 - newChecksum;
 }
 
-fillSysexToneData = function() {
+window.fillSysexToneData = function() {
     window.internalToneData = vzTone.getHexArray();
     var toneData = [];
     for (var i = 0; i < window.internalToneData.length; i++) {
@@ -1421,11 +1413,11 @@ fillSysexToneData = function() {
     return toneData;
 };
 
-send_data_to_vz = function() {
+window.send_data_to_vz = function() {
     var toneData = [];
-    SysexMessage = [];
-    SYSEX_CHECKSUM = [];
-    toneData = fillSysexToneData();
+    let SysexMessage = [];
+    const SYSEX_CHECKSUM = [];
+    toneData = window.fillSysexToneData();
     SYSEX_CHECKSUM.push(calculateChecksum(toneData));
     SysexMessage = SYSEX_START;
     SysexMessage = SysexMessage.concat(SYSEX_CHANNEL);
@@ -1456,7 +1448,7 @@ function lineMix(line) {
             $("#M" + ((line - 1) * 2 + 1)).removeClass("VZmodule_mod");
             break;
     }
-    send_data_to_vz();
+    window.window.send_data_to_vz();
 }
 
 function waveUp(module) {
@@ -1464,7 +1456,7 @@ function waveUp(module) {
     vzTone.module[module - 1].waveForm = (wave + 1) % 8;
     renderOsc(waveCanvases[module - 1], module - 1);
     $("#wave" + module).val(vzTone.waveName[vzTone.getWaveForm(module - 1)]);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function waveDown(module) {
@@ -1472,7 +1464,7 @@ function waveDown(module) {
     vzTone.module[module - 1].waveForm = (wave + 8 - 1) % 8;
     renderOsc(waveCanvases[module - 1], module - 1);
     $("#wave" + module).val(vzTone.waveName[vzTone.getWaveForm(module - 1)]);
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 // function togglePosNeg(module, state) {
@@ -1483,7 +1475,7 @@ function selectFixedPitch(module) {
     window.internalToneData[3 + 2 * module] &= 0xfd;
     if ($("#det_pitch_fixM" + module).is(":checked"))
         window.internalToneData[3 + 2 * module] += 1 << 1;
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function setDetune(module) {
@@ -1496,15 +1488,9 @@ function setDetune(module) {
     noteval = parseInt($("#det_note_M" + module).val());
     cent = parseInt($("#det_cent_M" + module).val());
     vzTone.setDetune(module - 1, (noteval * 64 + cent) * pol);
-    document.getElementById("oct_M" + module).value = vzTone.getDetuneOctave(
-        module - 1
-    );
-    document.getElementById("note_M" + module).value = vzTone.getDetuneNote(
-        module - 1
-    );
-    document.getElementById("cent_M" + module).value = vzTone.getDetuneCent(
-        module - 1
-    );
+    byId("oct_M" + module).value = vzTone.getDetuneOctave(module - 1);
+    byId("note_M" + module).value = vzTone.getDetuneNote(module - 1);
+    byId("cent_M" + module).value = vzTone.getDetuneCent(module - 1);
 }
 
 function dragModule(event, value) {
@@ -1521,7 +1507,7 @@ function setPitchFix(module) {
     } else {
         vzTone.module[module - 1].detuneFix = 0;
     }
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function dropModule(event, dest) {
@@ -1529,7 +1515,7 @@ function dropModule(event, dest) {
     var source = event.dataTransfer.getData("text/string");
     vzTone.copyModule(source, dest - 1);
     renderAll();
-    send_data_to_vz();
+    window.send_data_to_vz();
 }
 
 function renderOsc(canvas, module) {
@@ -1594,5 +1580,5 @@ function changeMidiChannel(value) {
     // know
     SYSEX_CHANNEL[0] = midiChannel - 1 + 0x70;
     MIDI_CHANNEL[0] = midiChannel - 1 + 0x70; //changed just now
-    document.getElementById("midiChannelTxt").value = midiChannel;
+    byId("midiChannelTxt").value = midiChannel;
 }
