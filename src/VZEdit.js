@@ -1,5 +1,5 @@
-import { VZTone } from "./VZTone";
-import { VZBank } from "./VZBank";
+import { VZBank } from "./VZBank.js";
+import { VZTone } from "./VZTone.js";
 
 const SYSEX_START = [0xf0, 0x44, 0x03, 0x00];
 const SYSEX_CHANNEL = [0x70]; /* set to channel 1 */
@@ -19,7 +19,7 @@ lock[2] = [0, 0, 0, 0, 0, 0, 0, 0]; // key follow
 
 window.internalToneData = [];
 
-const byId = document.getElementById;
+const byId = (selector) => document.getElementById(selector);
 
 for (let i = 1; i < 5; i++) {
     byId("lines").innerHTML +=
@@ -217,7 +217,7 @@ function setTotalLevel() {
 }
 
 function buildModule(module) {
-    moduleString = "";
+    let moduleString = "";
     moduleString +=
         "<input type='submit' value ='' class='active' id='module_enabled_M" +
         module +
@@ -236,7 +236,7 @@ function buildModule(module) {
 }
 
 function buildWave(module) {
-    waveString = "";
+    let waveString = "";
     waveString +=
         "<input type='image'  id='waveDwn" +
         module +
@@ -260,8 +260,8 @@ function buildWave(module) {
     return waveString;
 }
 
-function buildModuleModulation(module) {
-    moduleModulationString =
+function buildModuleModulation(i) {
+    let moduleModulationString =
         "<input type='submit' value='' class='unlocked'  id='kfLock" +
         i +
         "' onclick = 'lockEnvelopeModule(" +
@@ -269,9 +269,9 @@ function buildModuleModulation(module) {
         ",2)' >  Key Follow  <br> ";
     moduleModulationString +=
         "<canvas id='keyFollow" +
-        module +
+        i +
         "' width = '12%' height='5%' onclick = 'activateKFModule(" +
-        module +
+        i +
         ")'></canvas>";
     moduleModulationString += "Velocity <br>";
     // moduleModulationString += "<input type='range' class='ampCurve' min='0'
@@ -280,28 +280,28 @@ function buildModuleModulation(module) {
     // + module + ",value)'> Curve";
     moduleModulationString +=
         "<image class='curve' id='curveImg" +
-        module +
+        i +
         "' onclick = 'nextAmpCurve(" +
-        module +
+        i +
         ")' src = 'curve1.png'><br>";
     moduleModulationString +=
         "<input type='range' class='ampSens' min='0' max='31' step='1' value='0' id='ampSensM" +
-        module +
+        i +
         "' onchange='setVelocitySensitivity(" +
-        module +
+        i +
         ",value)'> Sens<br>";
     moduleModulationString += "Modulation <br>";
     moduleModulationString +=
         "<input type='range' id='modSens" +
-        module +
+        i +
         "' onchange='setModSens(" +
-        module +
+        i +
         ")' min='0' max='7' step='1' value='4'> Sens";
     return moduleModulationString;
 }
 
 function buildDetune(module) {
-    detuneString = "Pitch <br>";
+    let detuneString = "Pitch <br>";
     detuneString +=
         "<input type='image' class='positive' id='det_pos_neg_M" +
         module +
@@ -352,32 +352,33 @@ function loadTone(num) {
     renderAll();
     window.send_data_to_vz();
 }
-function buildEnvelopeModules(module) {
-    envelopeModuleString =
+
+function buildEnvelopeModules(i) {
+    let envelopeModuleString =
         "<input type='submit' value='' class='unlocked'  id='envLock" +
-        module +
+        i +
         "' onclick = 'lockEnvelopeModule(" +
-        module +
+        i +
         ",1)' >Envelope <br> ";
     envelopeModuleString +=
         "<canvas id='envelope" +
-        module +
+        i +
         "' width = '150px' height='40px' onclick = 'activateEnvelopeModule(" +
-        module +
+        i +
         ")'></canvas>";
 
     envelopeModuleString +=
         "<input type='range' id='envDepth" +
-        module +
+        i +
         "' onchange='setEnvDepth(" +
-        module +
+        i +
         ")' min='0' max='99' step='1' value='90'> Depth";
     return envelopeModuleString;
 }
 
 function buildEnvelope() {
     var i;
-    envelopeString = "";
+    let envelopeString = "";
     envelopeString +=
         "<input type='image' id='close_env' src='negative.jpg' align='right' onclick='closeOverlay(1)' widht='30px'> Envelope Editor <br>";
     envelopeString +=
@@ -421,21 +422,20 @@ function buildEnvelope() {
 }
 
 function buildKF() {
-    var i;
-    kfString = "";
+    let kfString = "";
     kfString +=
         "<input type='image' id='close_env' src='negative.jpg' align='right' onclick='closeOverlay(2)' widht='30px'> Key Follow Editor <br>";
     kfString += "<canvas id='kf' width = '1000px' height = '300px'></canvas>";
 
     kfString += "<table>";
     kfString += "<tr>";
-    for (i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
         kfString += "<td>";
         if (i > 0) kfString += i;
         kfString += "</td>";
     }
     kfString += "</tr>	<tr>";
-    for (i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
         kfString += "<td>";
         if (i > 0)
             kfString +=
@@ -448,7 +448,7 @@ function buildKF() {
         kfString += "</td>";
     }
     kfString += "</tr>	<tr>";
-    for (i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
         kfString += "<td>";
         if (i > 0)
             kfString +=
@@ -464,38 +464,17 @@ function buildKF() {
     return kfString;
 }
 
-function readSysEx(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-
-    var files = evt.dataTransfer.files;
-    f = files[0];
-
-    if (files.length > 1) alert("more than one file selected");
-
-    reader.readAsArrayBuffer(f);
-}
-
-reader.onload = function(e) {
-    var sysExBuffer = reader.result;
-
-    bank.init(sysExBuffer, f.name);
-    $("#vzBankFile").val(escape(f.name) + " - " + f.size + " bytes");
-    for (var i = 0; i < 64; i++) {
-        $("#tone" + i).val(bank.getToneName(i));
-    }
-};
-
 function setModulation(type) {
+    let multi;
     if ($("#" + type + "Multi").is(":checked")) {
         multi = 1;
     } else {
         multi = 0;
     }
-    wave = parseInt($("#" + type + "Wave").val());
-    depth = parseInt($("#" + type + "Depth").val());
-    rate = parseInt($("#" + type + "Rate").val());
-    delay = parseInt($("#" + type + "Delay").val());
+    let wave = parseInt($("#" + type + "Wave").val());
+    let depth = parseInt($("#" + type + "Depth").val());
+    let rate = parseInt($("#" + type + "Rate").val());
+    let delay = parseInt($("#" + type + "Delay").val());
     vzTone.setModMulti(type, multi);
     vzTone.setModWave(type, wave);
     vzTone.setModDepth(type, depth);
@@ -504,13 +483,13 @@ function setModulation(type) {
 }
 
 function setModvibrato() {
-    type = "vibrato";
+    let type = "vibrato";
     setModulation(type);
     window.send_data_to_vz();
 }
 
 function setModtremolo() {
-    type = "tremolo";
+    let type = "tremolo";
     setModulation(type);
     window.send_data_to_vz();
 }
@@ -522,32 +501,32 @@ function selectAmpCurve(module, value) {
 }
 
 function nextAmpCurve(module) {
-    value = (vzTone.getVelCurve(module - 1) + 1) % 8;
+    const value = (vzTone.getVelCurve(module - 1) + 1) % 8;
     vzTone.setVelCurve(module - 1, value);
     setCurveImg(module, value);
     window.send_data_to_vz();
 }
 
 function setVelocitySensitivity(module, value) {
-    var sens = parseInt(value);
+    const sens = parseInt(value);
     vzTone.setVelSensitivity(module - 1, sens);
     window.send_data_to_vz();
 }
 
 function setEnvDepth(module) {
-    level = parseInt($("#envDepth" + module).val());
+    const level = parseInt($("#envDepth" + module).val());
     vzTone.setEnvelopeDepth(module - 1, level);
     window.send_data_to_vz();
 }
 
 function setPitchEnvDepth() {
-    level = parseInt($("#pitchEnvDepth").val());
+    const level = parseInt($("#pitchEnvDepth").val());
     vzTone.pitchEnvDepth = level;
     window.send_data_to_vz();
 }
 
 function setModSens(module) {
-    level = parseInt($("#modSens" + module).val());
+    const level = parseInt($("#modSens" + module).val());
     vzTone.setModulationSensitivity(module - 1, level);
     window.send_data_to_vz();
 }
@@ -556,7 +535,7 @@ function renderAll() {
     $("#TotalVZLevel").val(vzTone.level);
     $("#toneName").val(vzTone.name);
 
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         $("#mixType" + (i + 1)).removeClass("ring");
         $("#mixType" + (i + 1)).removeClass("mix");
         $("#M" + (i * 2 + 1)).removeClass("VZmodule");
@@ -591,7 +570,9 @@ function renderAll() {
         }
     }
 
-    for (var i = 0; i < 8; i++) {
+    let status;
+
+    for (let i = 0; i < 8; i++) {
         if (vzTone.module[i].active == 1) {
             $("#module_enabled_M" + (i + 1)).addClass("active");
             $("#module_enabled_M" + (i + 1)).removeClass("inactive");
@@ -710,6 +691,8 @@ function extPhase(line) {
 }
 
 function lockEnvelopeModule(module, type) {
+    let element;
+    let status;
     switch (type) {
         case 1:
             element = "#envLock";
@@ -1324,7 +1307,7 @@ function doMouseUp(envCanvas, evt) {
 
 envCanvas.addEventListener(
     "mousemove",
-    function(evt) {
+    function (evt) {
         doMouseMove(envCanvas, evt);
     },
     false
@@ -1332,7 +1315,7 @@ envCanvas.addEventListener(
 
 envCanvas.addEventListener(
     "mousedown",
-    function(evt) {
+    function (evt) {
         doMouseDown(envCanvas, evt);
     },
     false
@@ -1340,7 +1323,7 @@ envCanvas.addEventListener(
 
 envCanvas.addEventListener(
     "mouseup",
-    function(evt) {
+    function (evt) {
         doMouseUp(envCanvas, evt);
     },
     false
@@ -1348,7 +1331,7 @@ envCanvas.addEventListener(
 
 envCanvas.addEventListener(
     "mouseout",
-    function(evt) {
+    function (evt) {
         doMouseOut(envCanvas, evt);
     },
     false
@@ -1356,7 +1339,7 @@ envCanvas.addEventListener(
 
 kfCanvas.addEventListener(
     "mousemove",
-    function(evt) {
+    function (evt) {
         doKFMouseMove(kfCanvas, evt);
     },
     false
@@ -1364,7 +1347,7 @@ kfCanvas.addEventListener(
 
 kfCanvas.addEventListener(
     "mousedown",
-    function(evt) {
+    function (evt) {
         doKFMouseDown(kfCanvas, evt);
     },
     false
@@ -1372,7 +1355,7 @@ kfCanvas.addEventListener(
 
 kfCanvas.addEventListener(
     "mouseup",
-    function(evt) {
+    function (evt) {
         doKFMouseUp(kfCanvas, evt);
     },
     false
@@ -1399,7 +1382,7 @@ function calculateChecksum(SysexData) {
     return 128 - newChecksum;
 }
 
-window.fillSysexToneData = function() {
+window.fillSysexToneData = function () {
     window.internalToneData = vzTone.getHexArray();
     var toneData = [];
     for (var i = 0; i < window.internalToneData.length; i++) {
@@ -1413,7 +1396,7 @@ window.fillSysexToneData = function() {
     return toneData;
 };
 
-window.send_data_to_vz = function() {
+window.send_data_to_vz = function () {
     var toneData = [];
     let SysexMessage = [];
     const SYSEX_CHECKSUM = [];
