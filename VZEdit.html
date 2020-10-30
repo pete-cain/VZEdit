@@ -120,6 +120,27 @@
 				through.disconnect(midiOutPort);
 			outport = engine.openMidiOut(name).or(onMidiOutFail).and(onMidiOutSuccess);
 		}
+		
+		function displayDevices(){
+			var selectIn = document.getElementById('selectMidiIn');
+		try {
+			var list = midiIn;
+			for ( var i in list) {
+				selectIn[i] = new Option(list[i], list[i], i == 0, i == 0);
+			}
+			document.getElementById('selectmididiv').className = '';
+		} catch (err) {
+		}
+		var selectOut = document.getElementById('selectMidiIn');
+		try {
+			var list = midiOut;
+			for ( var i in list) {
+				selectOut[i] = new Option(list[i], list[i], i == 0, i == 0);
+			}
+			document.getElementById('selectmididiv').className = '';
+		} catch (err) {
+		}
+		}
 
 		selectMidiIn.addEventListener('change', changeMidiIn);
 		selectMidiOut.addEventListener('change', changeMidiOut);
