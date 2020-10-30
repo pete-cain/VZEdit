@@ -23,15 +23,6 @@
 <body>
 	<h1>Casio VZ Editor</h1>
 
-	<object id="Jazz1" classid="CLSID:1ACE1618-1C7D-4561-AEE1-34842AA85E90"
-		class="hidden">
-		<object id="Jazz2" type="audio/x-jazz" class="hidden">
-			<p style="visibility: visible;">
-				This page requires <a href=http://jazz-soft.net>Jazz-Plugin</a> ...
-			</p>
-		</object>
-	</object>
-
 <div id="global"></div>
 	<div id= "lines" class="VZlines"></div>
 
@@ -49,40 +40,89 @@
 <div id = "vZbank" ondragover= 'allowDrop(event)' ondrop='readSysEx(event)'></div>
 
 	<div id="buttons">
-		<button onmousedown='Jazz.MidiOutLong([0x90,60,120,64,120,67,120]);'
-			onmouseup='Jazz.MidiOutLong([0x80,60,0,64,0,67,0]);'>Play!</button>
-			
-			<button onmousedown='send_data_to_vz();'>Transmit</button>
-			
-			<button onclick='window.open("VZEditorReferenceGuide.pdf" )'> Help </button>
-		
+		<button
+			onmousedown='outport.send([0x90,60,100]).send([0x90,64,100]).send([0x90,67,100]);'
+			onmouseup='outport.send([0x80,60,0]).send([0x80,64,0]).send([0x80,67,0]);'>Play!</button>
 
-		
-		MIDI Out: <select id=selectmidi onchange='changemidi();'></select>
-		Channel: <input type="text" id="midiChannelTxt" onchange='changeMidiChannel(value)'>
+		<button onmousedown='send_data_to_vz();'>Transmit</button>
+
+		<button onclick='window.open("VZEditorReferenceGuide.pdf" )'>
+			Help</button>
+
+
+
+		MIDI In: <select id=selectmidiin></select> &nbsp; MIDI Out: <select
+			id=selectmidiout></select> Channel: <select id="midiChannel"
+			onchange='changeMidiChannel(value)'></select>
 	</div>
 
 	<script>
-	
-		var Jazz = document.getElementById("Jazz1");
-		if (!Jazz || !Jazz.isJazz)
-			Jazz = document.getElementById("Jazz2");
-		function changemidi() {
-			Jazz.MidiOutOpen(select.options[select.selectedIndex].value);
-		}
-		var select = document.getElementById('selectmidi');
-		try {
-			var list = Jazz.MidiOutList();
-			for ( var i in list) {
-				select[i] = new Option(list[i], list[i], i == 0, i == 0);
+		var midi = null; // global MIDIAccess object
+
+		function connect() {
+			  navigator.requestMIDIAccess( )
+			  .then(
+			    (midi) => midiReady(midi),
+			    (err) => console.log('Something went wrong', err));
 			}
-			document.getElementById('selectmididiv').className = '';
-		} catch (err) {
+
+			function midiReady(midi) {
+			  // Also react to device changes.
+			  midi.addEventListener('statechange', (event) => initDevices(event.target));
+			  initDevices(midi); // see the next section!
+			}
+
+			connect();
+
+			function initDevices(midi) {
+				  // Reset.
+				  midiIn = [];
+				  midiOut = [];
+				  
+				  // MIDI devices that send you data.
+				  const inputs = midi.inputs.values();
+				  for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
+				    midiIn.push(input.value);
+				  }
+				  
+				  // MIDI devices that you send data to.
+				  const outputs = midi.outputs.values();
+				  for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
+				    midiOut.push(output.value);
+				  }
+				  
+				  displayDevices();
+				  startListening();
+				}
+
+
+				// Start listening to MIDI messages.
+				function startListening() {
+				  for (const input of midiIn) {
+				    input.addEventListener('midimessage', midiMessageReceived);
+				  }
+				}
+
+		function changeMidiIn() {
+			var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
+			if (name == midiInName)
+				return;
+			if (midiInPort)
+				midiInPort.disconnect(through);
+			engine.openMidiIn(name).or(onMidiInFail).and(onMidiInSuccess);
 		}
-		if (Jazz.isJazz) {
-			Jazz.MidiOutOpen(0);
+
+		function changeMidiOut() {
+			var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
+			if (name == midiOutName)
+				return;
+			if (midiOutPort)
+				through.disconnect(midiOutPort);
+			outport = engine.openMidiOut(name).or(onMidiOutFail).and(onMidiOutSuccess);
 		}
-		
+
+		selectMidiIn.addEventListener('change', changeMidiIn);
+		selectMidiOut.addEventListener('change', changeMidiOut);
 	</script>
 	<script src="VZBank.js"></script>
 	<script src="VZTone.js"></script>
