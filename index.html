@@ -126,16 +126,16 @@
 		try {
 			var list = midiIn;
 			for ( var i in list) {
-				selectIn[i] = new Option(list[i], list[i], i == 0, i == 0);
+				selectIn[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
 			}
 			document.getElementById('selectmididiv').className = '';
 		} catch (err) {
 		}
-		var selectOut = document.getElementById('selectMidiIn');
+		var selectOut = document.getElementById('selectMidiOut');
 		try {
 			var list = midiOut;
 			for ( var i in list) {
-				selectOut[i] = new Option(list[i], list[i], i == 0, i == 0);
+				selectOut[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
 			}
 			document.getElementById('selectmididiv').className = '';
 		} catch (err) {
