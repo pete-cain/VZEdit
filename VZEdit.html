@@ -41,8 +41,8 @@
 
 	<div id="buttons">
 		<button
-			onmousedown='outport.send([0x90,60,100]).send([0x90,64,100]).send([0x90,67,100]);'
-			onmouseup='outport.send([0x80,60,0]).send([0x80,64,0]).send([0x80,67,0]);'>Play!</button>
+			onmousedown='midiOut.send([0x90,60,100]).send([0x90,64,100]).send([0x90,67,100]);'
+			onmouseup='midiOut.send([0x80,60,0]).send([0x80,64,0]).send([0x80,67,0]);'>Play!</button>
 
 		<button onmousedown='send_data_to_vz();'>Transmit</button>
 
@@ -58,6 +58,8 @@
 
 	<script>
 		var midi = null; // global MIDIAccess object
+		var midiIn = null;
+		var midiOut = null;
 
 		function connect() {
 			  navigator.requestMIDIAccess( )
@@ -76,19 +78,19 @@
 
 			function initDevices(midi) {
 				  // Reset.
-				  midiIn = [];
-				  midiOut = [];
+				  midiIns = [];
+				  midiOuts = [];
 				  
 				  // MIDI devices that send you data.
 				  const inputs = midi.inputs.values();
 				  for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-				    midiIn.push(input.value);
+				    midiIns.push(input.value);
 				  }
 				  
 				  // MIDI devices that you send data to.
 				  const outputs = midi.outputs.values();
 				  for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
-				    midiOut.push(output.value);
+				    midiOuts.push(output.value);
 				  }
 				  
 				  displayDevices();
@@ -107,18 +109,14 @@
 			var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
 			if (name == midiInName)
 				return;
-			if (midiInPort)
-				midiInPort.disconnect(through);
-			engine.openMidiIn(name).or(onMidiInFail).and(onMidiInSuccess);
+			midiIn = midiIns[selectMidiIn.selectedIndex];
 		}
 
 		function changeMidiOut() {
 			var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
 			if (name == midiOutName)
 				return;
-			if (midiOutPort)
-				through.disconnect(midiOutPort);
-			outport = engine.openMidiOut(name).or(onMidiOutFail).and(onMidiOutSuccess);
+			midiOut = midiOuts[selectMidiOut.selectedIndex];
 		}
 		
 		function displayDevices(){

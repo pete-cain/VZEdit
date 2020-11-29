@@ -63,7 +63,7 @@
 			  navigator.requestMIDIAccess( )
 			  .then(
 			    (midi) => midiReady(midi),
-			    (err) => console.log('Something went wrong', err));
+			    (err) => console.log('No MIDI access granted', err));
 			}
 
 			function midiReady(midi) {
