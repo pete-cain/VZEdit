@@ -82,13 +82,13 @@
 				  // MIDI devices that send you data.
 				  const inputs = midi.inputs.values();
 				  for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-				    midiIns.push(input.value);
+				    midiIn.push(input.value);
 				  }
 				  
 				  // MIDI devices that you send data to.
 				  const outputs = midi.outputs.values();
 				  for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
-				    midiOuts.push(output.value);
+				    midiOut.push(output.value);
 				  }
 				  
 				  displayDevices();
