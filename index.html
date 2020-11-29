@@ -129,8 +129,7 @@
 		}
 		var selectOut = document.getElementById('selectMidiOut');
 		try {
-			var list = 
-			;
+			var list = midiOut;
 			for ( var i in list) {
 				selectOut[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
 			}
