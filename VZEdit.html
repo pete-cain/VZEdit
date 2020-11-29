@@ -41,8 +41,8 @@
 
 	<div id="buttons">
 		<button
-			onmousedown='outport.send([0x90,60,100]).send([0x90,64,100]).send([0x90,67,100]);'
-			onmouseup='outport.send([0x80,60,0]).send([0x80,64,0]).send([0x80,67,0]);'>Play!</button>
+			onmousedown='outport.send([0x90,0x3c,0x80]); outport.send([0x90,0x40,0x80); outport.send([0x90,0x43,0x80]);'
+			onmouseup='outport.send([0x80,0x3c,0x00]); outport.send([0x80,0x40,0x00]); outport.send([0x80,0x43,0x00]);'>Test!</button>
 
 		<button onmousedown='send_data_to_vz();'>Transmit</button>
 
@@ -58,6 +58,7 @@
 
 	<script>
 		var midi = null; // global MIDIAccess object
+		var outport = null; // global midi out port
 	
 		function connect() {
 			  navigator.requestMIDIAccess( )
@@ -105,15 +106,11 @@
 
 		function changeMidiIn() {
 			var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
-			if (name == midiInName)
-				return;
 			inport = midiIn[selectMidiIn.selectedIndex];
 		}
 
 		function changeMidiOut() {
 			var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
-			if (name == midiOutName)
-				return;
 			outport = midiOut[selectMidiOut.selectedIndex];
 		}
 		
