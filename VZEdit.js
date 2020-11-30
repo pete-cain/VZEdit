@@ -1,46 +1,10 @@
-// Check for the various File API support.
-if (window.File && window.FileReader && window.FileList && window.Blob) {
-	// Great success! All the File APIs are supported.
-} else {
-	alert('The File APIs are not fully supported in this browser.');
-}
-
-// window.webkitStorageInfo.requestQuota(PERSISTENT, 1024*1024,
-// function(grantedBytes) {
-// window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, errorHandler);
-// }, function(e) {
-// console.log('Error', e);
-// });
-
-function onInitFs(fs) {
-
-	fs.root.getFile('target.syx', {
-		create : true
-	}, function(fileEntry) {
-
-		// Create a FileWriter object for our FileEntry (log.txt).
-		fileEntry.createWriter(function(fileWriter) {
-
-			fileWriter.onwriteend = function(e) {
-				console.log('Write completed.');
-			};
-
-			fileWriter.onerror = function(e) {
-				console.log('Write failed: ' + e.toString());
-			};
-
-		}, errorHandler);
-
-	}, errorHandler);
-
-}
-
 SYSEX_START = [ 0xf0, 0x44, 0x03, 0x00 ];
 SYSEX_CHANNEL = [ 0x70 ]; /* set to channel 1 */
 SYSEX_DATA_RECEIVE_AREA = [ 0x00, 0x40 ];
 SYSEX_END = [ 0xf7 ];
 var sourceEnvelope = 0;
 var inactiveSourceEnvelope = 0;
+
 // var pitchEnabled = false;
 
 // create the tone object
@@ -1214,7 +1178,7 @@ send_data_to_vz = function() {
 	SysexMessage = SysexMessage.concat(toneData);
 	SysexMessage = SysexMessage.concat(SYSEX_CHECKSUM);
 	SysexMessage = SysexMessage.concat(SYSEX_END);
-	Jazz.MidiOutLong(SysexMessage);
+	outport.send(SysexMessage);
 };
 
 function lineMix(line) {
