@@ -21,7 +21,7 @@
 </head>
 
 <body>
-	<h1>Casio VZ Editor</h1>
+	<h1>Cain's Casio VZ Editor</h1>
 
 <div id="global"></div>
 	<div id= "lines" class="VZlines"></div>
@@ -41,8 +41,8 @@
 
 	<div id="buttons">
 		<button
-			onmousedown='outport.send([0x90,0x3c,0x80]); outport.send([0x90,0x40,0x80); outport.send([0x90,0x43,0x80]);'
-			onmouseup='outport.send([0x80,0x3c,0x00]); outport.send([0x80,0x40,0x00]); outport.send([0x80,0x43,0x00]);'>Test!</button>
+			onmousedown='outport.send([0x90,0x3c,0x80]); '
+			onmouseup='outport.send([0x80,0x3c,0x00]); '>Test!</button>
 
 		<button onmousedown='send_data_to_vz();'>Transmit</button>
 
@@ -61,7 +61,7 @@
 		var outport = null; // global midi out port
 	
 		function connect() {
-			  navigator.requestMIDIAccess( )
+			  navigator.requestMIDIAccess({ sysex: true } )
 			  .then(
 			    (midi) => midiReady(midi),
 			    (err) => console.log('Something went wrong', err));
