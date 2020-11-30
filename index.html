@@ -61,7 +61,7 @@
 		var outport = null; // global midi out port
 	
 		function connect() {
-			  navigator.requestMIDIAccess( )
+			  navigator.requestMIDIAccess({ sysex: true } )
 			  .then(
 			    (midi) => midiReady(midi),
 			    (err) => console.log('Something went wrong', err));
