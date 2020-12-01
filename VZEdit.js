@@ -178,12 +178,9 @@ function buildWave(module) {
 function buildModuleModulation(module) {
 	moduleModulationString = "<input type='submit' value='' class='unlocked'  id='kfLock" + i + "' onclick = 'lockEnvelopeModule(" + i
 			+ ",2)' >  Key Follow  <br> ";
-	moduleModulationString += "<canvas id='keyFollow" + module + "' width = '150px' height='40px' onclick = 'activateKFModule(" + module + ")'></canvas>";
-	moduleModulationString += "Velocity <br>";
-	// moduleModulationString += "<input type='range' class='ampCurve' min='0'
-	// max='7' step='1' value='0' id='ampCurveM" + module + "'
-	// onchange='selectAmpCurve("
-	// + module + ",value)'> Curve";
+	moduleModulationString += "<canvas id='keyFollow" + module + "' width = '150px' height='40px' onclick = 'activateKFModule(" + module + ")'></canvas><br>";
+	moduleModulationString += "Velocity Curve Type <br>";
+	moduleModulationString += "Velocity Sensitivity <br>";
 	moduleModulationString += "<image class='curve' id='curveImg" + module + "' onclick = 'nextAmpCurve(" + module + ")' src = 'curve1.png'><br>";
 	moduleModulationString += "<input type='range' class='ampSens' min='0' max='31' step='1' value='0' id='ampSensM" + module
 			+ "' onchange='setVelocitySensitivity(" + module + ",value)'> Sens<br>";
