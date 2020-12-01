@@ -132,11 +132,11 @@
 		}
 		
 		function sendStartChord(){
-			outport.send([0x90+MIDI_CHANNEL,0x3c,0x80]);
+			outport.send([0x90+MIDI_CHANNEL[0],0x3c,0x80]);
 		}
 		
 		function sendEndChord(){
-			outport.send([0x80+MIDI_CHANNEL,0x3c,0x00]); 
+			outport.send([0x80+MIDI_CHANNEL[0],0x3c,0x00]); 
 		}
 		
 		function displayDevices(){
