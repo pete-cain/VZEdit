@@ -1,8 +1,8 @@
 SYSEX_START = [ 0xf0, 0x44, 0x03, 0x00 ];
-SYSEX_CHANNEL = [ 0x70 ]; /* set to channel 1 */
-MIDI_CHANNEL = [0x00];
+SYSEX_CHANNEL = 0x70; /* set to channel 1 */
+MIDI_CHANNEL = 0x00;
 SYSEX_DATA_RECEIVE_AREA = [ 0x00, 0x40 ];
-SYSEX_END = [ 0xf7 ];
+SYSEX_END = 0xf7;
 var sourceEnvelope = 0;
 var inactiveSourceEnvelope = 0;
 
