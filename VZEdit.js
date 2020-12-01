@@ -1,5 +1,6 @@
 SYSEX_START = [ 0xf0, 0x44, 0x03, 0x00 ];
 SYSEX_CHANNEL = [ 0x70 ]; /* set to channel 1 */
+MIDI_CHANNEL = [0x00];
 SYSEX_DATA_RECEIVE_AREA = [ 0x00, 0x40 ];
 SYSEX_END = [ 0xf7 ];
 var sourceEnvelope = 0;
@@ -106,7 +107,7 @@ function buildPitchEnv() {
 	pitchEnvString += "<div id='pitchEnvelope'>";
 	pitchEnvString += "Pitch Envelope <br>"
 	pitchEnvString += "<label> <input type='checkbox' id='pitchRange' onclick='pitchChangeRange()'>Range</label> <br> ";
-	pitchEnvString += "<canvas id='envelope" + 9 + "' width = '100%' height='30%' onclick = 'activateEnvelopeModule(" + 9 + ")'> </canvas> <br>";
+	pitchEnvString += "<canvas id='envelope" + 9 + "' width = '150px' height='40px' onclick = 'activateEnvelopeModule(" + 9 + ")'> </canvas> <br>";
 	pitchEnvString += "<input type='range' id='pitchEnvDepth'    min='0' max='63' step='1' value='63' onchange='setPitchEnvDepth()' > Depth <br>";
 	pitchEnvString += "Velocity <br>"
 	// pitchEnvString += "<input type='range' class='ampCurve' min='0' max='7'
@@ -177,7 +178,7 @@ function buildWave(module) {
 function buildModuleModulation(module) {
 	moduleModulationString = "<input type='submit' value='' class='unlocked'  id='kfLock" + i + "' onclick = 'lockEnvelopeModule(" + i
 			+ ",2)' >  Key Follow  <br> ";
-	moduleModulationString += "<canvas id='keyFollow" + module + "' width = '12%' height='5%' onclick = 'activateKFModule(" + module + ")'></canvas>";
+	moduleModulationString += "<canvas id='keyFollow" + module + "' width = '150px' height='40px' onclick = 'activateKFModule(" + module + ")'></canvas>";
 	moduleModulationString += "Velocity <br>";
 	// moduleModulationString += "<input type='range' class='ampCurve' min='0'
 	// max='7' step='1' value='0' id='ampCurveM" + module + "'
@@ -1331,11 +1332,10 @@ function osc(i, waveform, extWave1, volume, frequenz, modtype) {
 
 function changeMidiChannel(value) {
 	midiChannel = parseInt(value);
-	if (value > 16 || value < 1)
-		value = 1; // it should throw an error... I
-	// know
-	SYSEX_CHANNEL[0] = midiChannel - 1 + 0x70;
-	MIDI_CHANNEL[0] = midiChannel - 1 + 0x70; //changed just now
+	if (value > 15 || value <0)
+		value = 1; // it should throw an error... I know
+	SYSEX_CHANNEL = midiChannel + 0x70;
+	MIDI_CHANNEL = midiChannel; //changed just now
 	document.getElementById("midiChannelTxt").value = midiChannel;
 }
 

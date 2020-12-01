@@ -16,44 +16,61 @@
 	max-height: 0px;
 }
 </style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="vzedit.css">
 </head>
 
 <body>
 	<h1>Cain's Casio VZ Editor</h1>
 
-<div id="global"></div>
-	<div id= "lines" class="VZlines"></div>
+	<div id="global"></div>
+	<div id="lines" class="VZlines"></div>
 
-	
+
 	<p>
-    <div id='modules'> </div>
-	
+	<div id='modules'></div>
 
-<div id = "envelopes" class='hideEnvelope'  ></div>
 
-<div id = "keyFollows" class='hideEnvelope' ></div>
+	<div id="envelopes" class='hideEnvelope'></div>
 
-<div id = "modulation"></div>
+	<div id="keyFollows" class='hideEnvelope'></div>
 
-<div id = "vZbank" ondragover= 'allowDrop(event)' ondrop='readSysEx(event)'></div>
+	<div id="modulation"></div>
+
+	<div id="vZbank" ondragover='allowDrop(event)'
+		ondrop='readSysEx(event)'></div>
 
 	<div id="buttons">
-		<button
-			onmousedown='outport.send([0x90,0x3c,0x80]); '
-			onmouseup='outport.send([0x80,0x3c,0x00]); '>Test!</button>
+		<button onmousedown='sendStartChord(); '
+			onmouseup='sendEndChord'>Test!</button>
 
 		<button onmousedown='send_data_to_vz();'>Transmit</button>
 
-		<button onclick='window.open("VZEdit.pdf" )'>
-			Help</button>
+		<button onclick='window.open("VZEdit.pdf" )'>Help</button>
 
 
 
 		MIDI In: <select id=selectMidiIn></select> &nbsp; MIDI Out: <select
 			id=selectMidiOut></select> Channel: <select id="midiChannel"
-			onchange='changeMidiChannel(value)'></select>
+			onchange='changeMidiChannel(value)'>
+			<option value="0">01</option>
+			<option value="1">02</option>
+			<option value="2">03</option>
+			<option value="3">04</option>
+			<option value="4">05</option>
+			<option value="5">06</option>
+			<option value="6">07</option>
+			<option value="7">08</option>
+			<option value="8">09</option>
+			<option value="9">10</option>
+			<option value="10">11</option>
+			<option value="11">12</option>
+			<option value="12">13</option>
+			<option value="13">14</option>
+			<option value="14">15</option>
+			<option value="15">16</option>
+		</select>
 	</div>
 
 	<script>
@@ -114,6 +131,14 @@
 			outport = midiOut[selectMidiOut.selectedIndex];
 		}
 		
+		function sendStartChord(){
+			outport.send([0x90+MIDI_CHANNEL,0x3c,0x80]);
+		}
+		
+		function sendEndChord(){
+			outport.send([0x80+MIDI_CHANNEL,0x3c,0x00]); 
+		}
+		
 		function displayDevices(){
 			var selectIn = document.getElementById('selectMidiIn');
 		try {
@@ -121,7 +146,7 @@
 			for ( var i in list) {
 				selectIn[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
 			}
-			document.getElementById('selectmididiv').className = '';
+			//document.getElementById('selectmididiv').className = '';
 		} catch (err) {
 		}
 		var selectOut = document.getElementById('selectMidiOut');
@@ -130,7 +155,8 @@
 			for ( var i in list) {
 				selectOut[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
 			}
-			document.getElementById('selectmididiv').className = '';
+			//document.getElementById('selectmididiv').className = '';
+		
 		} catch (err) {
 		}
 		}
