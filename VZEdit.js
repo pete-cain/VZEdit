@@ -1176,8 +1176,8 @@ send_data_to_vz = function() {
 	SysexMessage = SysexMessage.concat(SYSEX_CHECKSUM);
 	SysexMessage = SysexMessage.concat(SYSEX_END);
 	// Added clear and send offset
-	outport.clear();
-	outport.send(SysexMessage, window.performance.now() + 10.0) ;
+	//outport.clear();
+	outport.send(SysexMessage) ;
 	
 
 };
