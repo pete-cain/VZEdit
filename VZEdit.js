@@ -411,6 +411,9 @@ function renderAll() {
 			break;
 		}
 
+		/*
+		Updated to correctly display of the routing between lines
+
 		if (i > 0) {
 			if (vzTone.extPhase[i - 1] == 0) {
 				$('#extPhase' + (i + 1)).addClass("line");
@@ -419,6 +422,19 @@ function renderAll() {
 				$('#extPhase' + (i + 1)).addClass("extPhase");
 				$('#extPhase' + (i + 1)).removeClass("line");
 			}
+		}
+		*/
+		if (i < 3) {
+			if (vzTone.extPhase[i] == 0) {
+				$('#extPhase' + (i + 1)).addClass("line");
+				$('#extPhase' + (i + 1)).removeClass("extPhase");
+			} else {
+				$('#extPhase' + (i + 1)).addClass("extPhase");
+				$('#extPhase' + (i + 1)).removeClass("line");
+			}
+		} else {
+			$('#extPhase' + (i + 1)).addClass("line");
+				$('#extPhase' + (i + 1)).removeClass("extPhase");
 		}
 	}
 
