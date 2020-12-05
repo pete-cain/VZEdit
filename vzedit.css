@@ -128,6 +128,13 @@ input[type=range]::-moz-range-thumb {
 	padding: 2px;
 }
 
+.modwave {
+	align: center ;
+	width: 60px;
+	background-color: #c0c0c0;
+	padding: 2px;
+}
+
 /* Algorithm Graph */
 
 .mix {

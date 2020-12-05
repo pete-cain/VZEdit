@@ -13,7 +13,6 @@ var vzTone = new VZTone();
 var bank = new VzBank();
 var reader = new FileReader();
 
-var envelopeLock = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 var lock = [];
 lock[0] = [ 0, 0, 0, 0, 0, 0, 0, 0 ]; // not used .... for module copy
 lock[1] = [ 0, 0, 0, 0, 0, 0, 0, 0 ];// envelope
@@ -128,7 +127,7 @@ function buildModulationType(type) {
 	modulationString += "<div id='" + type + "'>";
 	modulationString += type + "<br>";
 	modulationString += "<label> <input type='checkbox' id='" + type + "Multi' onchange='setMod" + type + "()'>Multi</label><br>";
-	modulationString += "<image id= 'modImg" + type + "' onclick='modUp(" + modType + ")'  width = '12%' src = 'mwave1.png'><br>";
+	modulationString += "<image class'modwave' id= 'modImg" + type + "' onclick='modUp(" + modType + ")'  src = 'mwave1.png'><br>";
 	modulationString += "<input type='range' id='" + type + "Wave' min='0' max='3' step='1' value='0' oninput='setModImg(" + modType
 			+ ",value)' onchange='setMod" + type + "()'> Wave<br>";
 	modulationString += "<input type='range' id='" + type + "Depth' min='0' max='99' step='1' value='0' onchange='setMod" + type + "()'> depth <br>";
@@ -640,9 +639,11 @@ function closeOverlay(element) {
 	switch (element) {
 	case 1:
 		element = '#envelopes';
+		lock[1]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 		break;
 	case 2:
 		element = '#keyFollows';
+		lock[2]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 		break;
 
 	default:
