@@ -127,7 +127,7 @@ function buildModulationType(type) {
 	modulationString += "<div id='" + type + "'>";
 	modulationString += type + "<br>";
 	modulationString += "<label> <input type='checkbox' id='" + type + "Multi' onchange='setMod" + type + "()'>Multi</label><br>";
-	modulationString += "<image class'modwave' id= 'modImg" + type + "' onclick='modUp(" + modType + ")'  src = 'mwave1.png'><br>";
+	modulationString += "<image class='modwave' id= 'modImg" + type + "' onclick='modUp(" + modType + ")'  src = 'mwave1.png'><br>";
 	modulationString += "<input type='range' id='" + type + "Wave' min='0' max='3' step='1' value='0' oninput='setModImg(" + modType
 			+ ",value)' onchange='setMod" + type + "()'> Wave<br>";
 	modulationString += "<input type='range' id='" + type + "Depth' min='0' max='99' step='1' value='0' onchange='setMod" + type + "()'> depth <br>";
@@ -1163,7 +1163,9 @@ function calculateChecksum(SysexData) {
 		newChecksum = newChecksum % 128;
 	}
 
-	return 128 - newChecksum;
+	newChecksum = 128 - newChecksum;
+	if (newChecksum == 128) newChecksum = 0;
+	return newChecksum;
 };
 
 fillSysexToneData = function() {
