@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html>
+
 <head>
 <title>Casio VZ Editor</title>
 
@@ -18,7 +17,7 @@
 </style>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="vzedit.css">
+<link rel="stylesheet" type="text/css" href="vzedit.css" />
 </head>
 
 <body>
@@ -27,33 +26,29 @@
 	<div id="global"></div>
 	<div id="lines" class="VZlines"></div>
 
+	<p></p>
+	<div id="modules"></div>
 
-	<p>
-	<div id='modules'></div>
+	<div id="envelopes" class="hideEnvelope"></div>
 
-
-	<div id="envelopes" class='hideEnvelope'></div>
-
-	<div id="keyFollows" class='hideEnvelope'></div>
+	<div id="keyFollows" class="hideEnvelope"></div>
 
 	<div id="modulation"></div>
 
-	<div id="vZbank" ondragover='allowDrop(event)'
-		ondrop='readSysEx(event)'></div>
+	<div id="vZbank" ondragover="allowDrop(event)"
+		ondrop="readSysEx(event)"></div>
 
 	<div id="buttons">
-		<button onmousedown='sendStartChord(); '
-			onmouseup='sendEndChord()'>Test!</button>
+		<button onmousedown="sendStartChord(); " onmouseup="sendEndChord()">
+			Test!</button>
 
-		<button onmousedown='send_data_to_vz();'>Transmit</button>
+		<button onmousedown="send_data_to_vz();">Transmit</button>
 
 		<button onclick='window.open("VZEdit.pdf" )'>Help</button>
 
-
-
-		MIDI In: <select id=selectMidiIn></select> &nbsp; MIDI Out: <select
-			id=selectMidiOut></select> Channel: <select id="midiChannel"
-			onchange='changeMidiChannel(value)'>
+		MIDI In: <select id="selectMidiIn"></select> &nbsp; MIDI Out: <select
+			id="selectMidiOut"></select> Channel: <select id="midiChannel"
+			onchange="changeMidiChannel(value)">
 			<option value="0">01</option>
 			<option value="1">02</option>
 			<option value="2">03</option>
@@ -74,96 +69,118 @@
 	</div>
 
 	<script>
-		var midi = null; // global MIDIAccess object
-		var outport = null; // global midi out port
-	
-		function connect() {
-			  navigator.requestMIDIAccess({ sysex: true } )
-			  .then(
-			    (midi) => midiReady(midi),
-			    (err) => console.log('Something went wrong', err));
-			}
+      var midi = null; // global MIDIAccess object
+      var outport = null; // global midi out port
 
-			function midiReady(midi) {
-			  // Also react to device changes.
-			  midi.addEventListener('statechange', (event) => initDevices(event.target));
-			  initDevices(midi); // see the next section!
-			}
+      function connect() {
+        navigator.requestMIDIAccess({ sysex: true }).then(
+          (midi) => midiReady(midi),
+          (err) => console.log('Something went wrong', err)
+        );
+      }
 
-			connect();
+      function midiReady(midi) {
+        // Also react to device changes.
+        midi.addEventListener('statechange', (event) =>
+          initDevices(event.target)
+        );
+        initDevices(midi); // see the next section!
+      }
 
-			function initDevices(midi) {
-				  // Reset.
-				  midiIn = [];
-				  midiOut = [];
-				  
-				  // MIDI devices that send you data.
-				  const inputs = midi.inputs.values();
-				  for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-				    midiIn.push(input.value);
-				  }
-				  
-				  // MIDI devices that you send data to.
-				  const outputs = midi.outputs.values();
-				  for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
-				    midiOut.push(output.value);
-				  }
-				  
-				  displayDevices();
-				  startListening();
-				}
+      connect();
 
+      function initDevices(midi) {
+        // Reset.
+        midiIn = [];
+        midiOut = [];
 
-				// Start listening to MIDI messages.
-				function startListening() {
-				  for (const input of midiIn) {
-				    input.addEventListener('midimessage', midiMessageReceived);
-				  }
-				}
+        // MIDI devices that send you data.
+        const inputs = midi.inputs.values();
+        for (
+          let input = inputs.next();
+          input && !input.done;
+          input = inputs.next()
+        ) {
+          midiIn.push(input.value);
+        }
 
-		function changeMidiIn() {
-			var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
-			inport = midiIn[selectMidiIn.selectedIndex];
-		}
+        // MIDI devices that you send data to.
+        const outputs = midi.outputs.values();
+        for (
+          let output = outputs.next();
+          output && !output.done;
+          output = outputs.next()
+        ) {
+          midiOut.push(output.value);
+        }
 
-		function changeMidiOut() {
-			var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
-			outport = midiOut[selectMidiOut.selectedIndex];
-		}
-		
-		function sendStartChord(){
-			outport.send([0x90+MIDI_CHANNEL[0],0x3c,0x7f]);
-		}
-		
-		function sendEndChord(){
-			outport.send([0x80+MIDI_CHANNEL[0],0x3c,0x00]); 
-		}
-		
-		function displayDevices(){
-			var selectIn = document.getElementById('selectMidiIn');
-		try {
-			var list = midiIn;
-			for ( var i in list) {
-				selectIn[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
-			}
-			//document.getElementById('selectmididiv').className = '';
-		} catch (err) {
-		}
-		var selectOut = document.getElementById('selectMidiOut');
-		try {
-			var list = midiOut;
-			for ( var i in list) {
-				selectOut[i] = new Option(list[i].name, list[i].name, i == 0, i == 0);
-			}
-			//document.getElementById('selectmididiv').className = '';
-		
-		} catch (err) {
-		}
-		}
+        displayDevices();
 
-		selectMidiIn.addEventListener('change', changeMidiIn);
-		selectMidiOut.addEventListener('change', changeMidiOut);
-	</script>
+        // Set the outport to the first available output
+        outport = midiOut[0];
+
+        startListening();
+      }
+
+      const midiMessageReceived = (msg) => console.info(msg);
+
+      // Start listening to MIDI messages.
+      function startListening() {
+        for (const input of midiIn) {
+          input.addEventListener('midimessage', midiMessageReceived);
+        }
+      }
+
+      function changeMidiIn() {
+        var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
+        inport = midiIn[selectMidiIn.selectedIndex];
+      }
+
+      function changeMidiOut() {
+        var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
+        outport = midiOut[selectMidiOut.selectedIndex];
+      }
+
+      function sendStartChord() {
+        outport.send([0x90 + MIDI_CHANNEL[0], 0x3c, 0x7f]);
+      }
+
+      function sendEndChord() {
+        outport.send([0x80 + MIDI_CHANNEL[0], 0x3c, 0x00]);
+      }
+
+      function displayDevices() {
+        var selectIn = document.getElementById('selectMidiIn');
+        try {
+          var list = midiIn;
+          for (var i in list) {
+            selectIn[i] = new Option(
+              list[i].name,
+              list[i].name,
+              i == 0,
+              i == 0
+            );
+          }
+          //document.getElementById('selectmididiv').className = '';
+        } catch (err) {}
+        var selectOut = document.getElementById('selectMidiOut');
+        try {
+          var list = midiOut;
+          for (var i in list) {
+            selectOut[i] = new Option(
+              list[i].name,
+              list[i].name,
+              i == 0,
+              i == 0
+            );
+          }
+          //document.getElementById('selectmididiv').className = '';
+        } catch (err) {}
+      }
+
+      selectMidiIn.addEventListener('change', changeMidiIn);
+      selectMidiOut.addEventListener('change', changeMidiOut);
+    </script>
 	<script src="VZBank.js"></script>
 	<script src="VZTone.js"></script>
 	<script src="VZEdit.js"></script>
