@@ -195,7 +195,8 @@ function buildDetune(module) {
 	detuneString += "<label for='oct_M" + module + "'>Oct:</label> <output id='oct_M" + module + "' width='20px' > </output>";
 	detuneString += "<label for='note_M" + module + "'>Note:</label> <output id='note_M" + module + "' width='20px' > </output>";
 	detuneString += "<label for='cent_M" + module + "'>Fine:</label> <output id='cent_M" + module + "' width='20px' > </output><br> ";
-	detuneString += "<input type='range' min='0' max='127' step='1' value='0' id='det_note_M" + module + "' onchange='send_data_to_vz()' oninput='setDetune("
+	// changed the range to fit to the non fixed detuning still a lot to clean up here
+	detuneString += "<input type='range' min='0' max='71' step='1' value='0' id='det_note_M" + module + "' onchange='send_data_to_vz()' oninput='setDetune("
 			+ module + ")'> Coarse";
 	detuneString += "<input type='range' min='0' max='63' step='1' value='0'	id='det_cent_M" + module + "' onchange='send_data_to_vz()' oninput='setDetune("
 			+ module + ")'> Fine";
@@ -639,11 +640,11 @@ function closeOverlay(element) {
 	switch (element) {
 	case 1:
 		element = '#envelopes';
-		lock[1]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
+		// lock[1]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 		break;
 	case 2:
 		element = '#keyFollows';
-		lock[2]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
+		// lock[2]  = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 		break;
 
 	default:

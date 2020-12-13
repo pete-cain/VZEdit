@@ -581,7 +581,7 @@ VZTone.prototype.getHexArray = function() {
 		internalToneData[292+i*2+1]= level ;  
 	}
 
-	// 304 .. 311 Velocity Curve & Sensitivity
+	// 304 .. 311 Velocity Curve & Sensitivity for Envelopes (1-06)
 	for (var i = 0; i < 8; i++) {
 		internalToneData[304 + i] = this.module[i].envelope.velocitySens
 				+ (this.module[i].velCurve << 5);
