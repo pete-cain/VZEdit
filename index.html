@@ -1,188 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Casio VZ Editor</title>
 
-<head>
-<title>Casio VZ Editor</title>
+		<style type="text/css">
+			.hidden {
+				visibility: visible;
+				width: 100px;
+				height: 20px;
+				margin: 0px;
+				padding: 0px;
+				border-style: none;
+				border-width: 0px;
+				max-width: 0px;
+				max-height: 0px;
+			}
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="vzedit.css" />
+	</head>
 
-<style type="text/css">
-.hidden {
-	visibility: visible;
-	width: 100px;
-	height: 20px;
-	margin: 0px;
-	padding: 0px;
-	border-style: none;
-	border-width: 0px;
-	max-width: 0px;
-	max-height: 0px;
-}
-</style>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="vzedit.css" />
-</head>
+	<body>
+		<h1>Cain's Casio VZ Editor</h1>
 
-<body>
-	<h1>Cain's Casio VZ Editor</h1>
+		<div id="global"></div>
+		<div id="lines" class="VZlines"></div>
 
-	<div id="global"></div>
-	<div id="lines" class="VZlines"></div>
+		<p></p>
+		<div id="modules"></div>
 
-	<p></p>
-	<div id="modules"></div>
+		<div id="envelopes" class="hideEnvelope"></div>
 
-	<div id="envelopes" class="hideEnvelope"></div>
+		<div id="keyFollows" class="hideEnvelope"></div>
 
-	<div id="keyFollows" class="hideEnvelope"></div>
+		<div id="modulation"></div>
 
-	<div id="modulation"></div>
+		<div id="vZbank"></div>
 
-	<div id="vZbank" ondragover="allowDrop(event)"
-		ondrop="readSysEx(event)"></div>
+		<div id="buttons">
+			<button onmousedown="sendStartChord(); " onmouseup="sendEndChord()">
+				Test!
+			</button>
 
-	<div id="buttons">
-		<button onmousedown="sendStartChord(); " onmouseup="sendEndChord()">
-			Test!</button>
+			<button onmousedown="send_data_to_vz();">Transmit</button>
 
-		<button onmousedown="send_data_to_vz();">Transmit</button>
+			<button onclick='window.open("VZEdit.pdf" )'>Help</button>
 
-		<button onclick='window.open("VZEdit.pdf" )'>Help</button>
+			MIDI In:
+			<select id="selectMidiIn"></select>
+			&nbsp; MIDI Out:
+			<select id="selectMidiOut"></select>
+			Channel:
+			<select id="midiChannel" onchange="changeMidiChannel(value)">
+				<option value="0">01</option>
+				<option value="1">02</option>
+				<option value="2">03</option>
+				<option value="3">04</option>
+				<option value="4">05</option>
+				<option value="5">06</option>
+				<option value="6">07</option>
+				<option value="7">08</option>
+				<option value="8">09</option>
+				<option value="9">10</option>
+				<option value="10">11</option>
+				<option value="11">12</option>
+				<option value="12">13</option>
+				<option value="13">14</option>
+				<option value="14">15</option>
+				<option value="15">16</option>
+			</select>
+		</div>
 
-		MIDI In: <select id="selectMidiIn"></select> &nbsp; MIDI Out: <select
-			id="selectMidiOut"></select> Channel: <select id="midiChannel"
-			onchange="changeMidiChannel(value)">
-			<option value="0">01</option>
-			<option value="1">02</option>
-			<option value="2">03</option>
-			<option value="3">04</option>
-			<option value="4">05</option>
-			<option value="5">06</option>
-			<option value="6">07</option>
-			<option value="7">08</option>
-			<option value="8">09</option>
-			<option value="9">10</option>
-			<option value="10">11</option>
-			<option value="11">12</option>
-			<option value="12">13</option>
-			<option value="13">14</option>
-			<option value="14">15</option>
-			<option value="15">16</option>
-		</select>
-	</div>
+		<script type="module">
+			import { readSysEx } from "./VZEdit.js";
 
-	<script>
-      var midi = null; // global MIDIAccess object
-      var outport = null; // global midi out port
+			document
+				.getElementById("vZbank")
+				.addEventListener("ondragover", (e) => e.preventDefault());
+			document
+				.getElementById("vZbank")
+				.addEventListener("ondrop", (e) => readSysEx(e));
 
-      function connect() {
-        navigator.requestMIDIAccess({ sysex: true }).then(
-          (midi) => midiReady(midi),
-          (err) => console.log('Something went wrong', err)
-        );
-      }
+			var midi = null; // global MIDIAccess object
+			window.outport = null; // global midi out port
 
-      function midiReady(midi) {
-        // Also react to device changes.
-        midi.addEventListener('statechange', (event) =>
-          initDevices(event.target)
-        );
-        initDevices(midi); // see the next section!
-      }
+			function connect() {
+				navigator.requestMIDIAccess({ sysex: true }).then(
+					(midi) => midiReady(midi),
+					(err) => console.log("Something went wrong", err)
+				);
+			}
 
-      connect();
+			function midiReady(midi) {
+				// Also react to device changes.
+				midi.addEventListener("statechange", (event) =>
+					initDevices(event.target)
+				);
+				initDevices(midi); // see the next section!
+			}
 
-      function initDevices(midi) {
-        // Reset.
-        midiIn = [];
-        midiOut = [];
+			connect();
+			let midiIn = [];
+			let midiOut = [];
 
-        // MIDI devices that send you data.
-        const inputs = midi.inputs.values();
-        for (
-          let input = inputs.next();
-          input && !input.done;
-          input = inputs.next()
-        ) {
-          midiIn.push(input.value);
-        }
+			function initDevices(midi) {
+				// Reset.
 
-        // MIDI devices that you send data to.
-        const outputs = midi.outputs.values();
-        for (
-          let output = outputs.next();
-          output && !output.done;
-          output = outputs.next()
-        ) {
-          midiOut.push(output.value);
-        }
+				// MIDI devices that send you data.
+				const inputs = midi.inputs.values();
+				for (
+					let input = inputs.next();
+					input && !input.done;
+					input = inputs.next()
+				) {
+					midiIn.push(input.value);
+				}
 
-        displayDevices();
+				// MIDI devices that you send data to.
+				const outputs = midi.outputs.values();
+				for (
+					let output = outputs.next();
+					output && !output.done;
+					output = outputs.next()
+				) {
+					midiOut.push(output.value);
+				}
 
-        // Set the outport to the first available output
-        outport = midiOut[0];
+				displayDevices();
 
-        startListening();
-      }
+				// Set the outport to the first available output
+				window.outport = midiOut[0];
 
-      const midiMessageReceived = (msg) => console.info(msg);
+				startListening();
+			}
 
-      // Start listening to MIDI messages.
-      function startListening() {
-        for (const input of midiIn) {
-          input.addEventListener('midimessage', midiMessageReceived);
-        }
-      }
+			const midiMessageReceived = (msg) => console.info(msg);
 
-      function changeMidiIn() {
-        var name = selectMidiIn.options[selectMidiIn.selectedIndex].value;
-        inport = midiIn[selectMidiIn.selectedIndex];
-      }
+			// Start listening to MIDI messages.
+			function startListening() {
+				for (const input of midiIn) {
+					input.addEventListener("midimessage", midiMessageReceived);
+				}
+			}
 
-      function changeMidiOut() {
-        var name = selectMidiOut.options[selectMidiOut.selectedIndex].value;
-        outport = midiOut[selectMidiOut.selectedIndex];
-      }
+			function changeMidiIn() {
+				var name =
+					selectMidiIn.options[selectMidiIn.selectedIndex].value;
+				inport = midiIn[selectMidiIn.selectedIndex];
+			}
 
-      function sendStartChord() {
-        outport.send([0x90 + MIDI_CHANNEL[0], 0x3c, 0x7f]);
-      }
+			function changeMidiOut() {
+				var name =
+					selectMidiOut.options[selectMidiOut.selectedIndex].value;
+				window.outport = midiOut[selectMidiOut.selectedIndex];
+			}
 
-      function sendEndChord() {
-        outport.send([0x80 + MIDI_CHANNEL[0], 0x3c, 0x00]);
-      }
+			window.sendStartChord = function () {
+				window.outport.send([0x90 + MIDI_CHANNEL[0], 0x3c, 0x7f]);
+			};
 
-      function displayDevices() {
-        var selectIn = document.getElementById('selectMidiIn');
-        try {
-          var list = midiIn;
-          for (var i in list) {
-            selectIn[i] = new Option(
-              list[i].name,
-              list[i].name,
-              i == 0,
-              i == 0
-            );
-          }
-          //document.getElementById('selectmididiv').className = '';
-        } catch (err) {}
-        var selectOut = document.getElementById('selectMidiOut');
-        try {
-          var list = midiOut;
-          for (var i in list) {
-            selectOut[i] = new Option(
-              list[i].name,
-              list[i].name,
-              i == 0,
-              i == 0
-            );
-          }
-          //document.getElementById('selectmididiv').className = '';
-        } catch (err) {}
-      }
+			window.sendEndChord = function () {
+				window.outport.send([0x80 + MIDI_CHANNEL[0], 0x3c, 0x00]);
+			};
 
-      selectMidiIn.addEventListener('change', changeMidiIn);
-      selectMidiOut.addEventListener('change', changeMidiOut);
-    </script>
-	<script src="VZBank.js"></script>
-	<script src="VZTone.js"></script>
-	<script src="VZEdit.js"></script>
-</body>
+			function displayDevices() {
+				var selectIn = document.getElementById("selectMidiIn");
+				try {
+					var list = midiIn;
+					for (var i in list) {
+						selectIn[i] = new Option(
+							list[i].name,
+							list[i].name,
+							i == 0,
+							i == 0
+						);
+					}
+					//document.getElementById('selectmididiv').className = '';
+				} catch (err) {}
+				var selectOut = document.getElementById("selectMidiOut");
+				try {
+					var list = midiOut;
+					for (var i in list) {
+						selectOut[i] = new Option(
+							list[i].name,
+							list[i].name,
+							i == 0,
+							i == 0
+						);
+					}
+					//document.getElementById('selectmididiv').className = '';
+				} catch (err) {}
+			}
+
+			selectMidiIn.addEventListener("change", changeMidiIn);
+			selectMidiOut.addEventListener("change", changeMidiOut);
+		</script>
+		<script type="module" src="VZBank.js"></script>
+		<script type="module" src="VZTone.js"></script>
+		<script type="module" src="VZEdit.js"></script>
+	</body>
 </html>

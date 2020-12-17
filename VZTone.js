@@ -1,113 +1,35 @@
 /**
- * This is the internal model of a VZ Tone consisting of VZTone VZEnvelope
- * VZKeyFolow VZModule VZLine
- * 
+ * This is the internal model of a VZ Tone consisting of 
+ * VZTone 
+ * VZEnvelope
+ * VZKeyFollow 
+ * VZModule 
+ * VZLine
+ *
  * A tone holds 4 lines, 8 modules
  */
-function Envelope(type) {
-	this.time = []; // Menu 9
-	this.level = []; // Menu 9
-	this.velocity = []; // ???
-	this.velocitySens = 7;
-	this.sustain = 3;
-	this.end = 5;
-	this.init(type);
-	this.depth = 99; // Menu 10
-}
-Envelope.prototype.init = function(type) {
-	if (type == 0) {
-		this.time = [ 99, 50, 0, 0, 0, 0, 0, 0 ];
-		this.level = [ 99, 0, 0, 0, 0, 0, 0, 0 ];
-		this.velocity = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-	} else {
-		this.time = [ 50, 50, 50, 50, 50, 50, 50, 50 ];
-		this.level = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-		this.velocity = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-
-	}
-	this.velocitySens = 7;
-	this.sustain = 0;
-	this.end = 1;
-};
-
-function RateKF() {
-	this.key = [ 2, 24, 36, 40, 60, 108 ];
-	this.level = [ 99, 99, 99, 99, 99, 99 ];
-}
-
-function KeyFollow() {
-	this.note = [ 2, 24, 36, 40, 60, 108 ];
-	this.level = [ 99, 99, 99, 99, 99, 99 ];
-//	this.rate = [ 1, 2, 3, 4, 5, 6 ];
-//	this.rateNote = [ 1, 2, 3, 4, 5, 6 ];
-}
-
-function VZModule() {
-	this.active = 1;
-	this.envelope = new Envelope(0);
-	this.keyFollow = new KeyFollow();
-	this.modSens = 4;
-	this.waveForm = 0;
-	this.init();
-	this.velCurve = 0;
-	this.detuneFix = 0;
-	this.detuneRange = 0;
-	this.detune = 0; // octave
-}
-
-VZModule.prototype.init = function() {
-	// to be done
-};
-
-VZModule.prototype.setDetune = function(value) {
-	this.detune = value;
-};
-
-VZModule.prototype.getOctave = function() {
-	return Math.abs(Math.floor(this.detune / (12 * 64)));
-
-};
-
-VZModule.prototype.getNote = function() {
-	return Math.abs((Math.floor(this.detune / 64)) % 12);
-};
-
-VZModule.prototype.getCent = function() {
-	return Math.abs(this.detune % 64);
-};
-
-function VZModulation() {
-	this.octPol = 1;
-	this.oct = 0;
-	this.waveNames = [ 'Triangle', 'Saw Up', 'Saw Down', 'Square' ];
-	this.wave = 0;
-	this.depth = 0;
-	this.rate = 0;
-	this.delay = 0;
-	this.multi = false;
-}
-
-VZModulation.prototype.setWave = function(wave) {
-	this.wave = wave;
-};
-
-VZModulation.prototype.getWave = function() {
-	return this.wave;
-};
-
-VZModulation.prototype.getWaveName = function() {
-	return this.waveName[wave];
-};
+import { VZEnvelope } from "./VZEnvelope.js";
+import { VZKeyFollow } from "./VZKeyFollow.js";
+import { VZModulation } from "./VZModulation.js";
+import { VZModule } from "./VZModule.js";
 
 function VZTone() {
-	this.waveName = ['sine', 'saw I', 'saw II', 'saw III', 'saw IV', 'saw V', 'noise I', 'noise II'];
-	
+	this.waveName = [
+		"sine",
+		"saw I",
+		"saw II",
+		"saw III",
+		"saw IV",
+		"saw V",
+		"noise I",
+		"noise II",
+	];
 	this.level = 99;
 	this.module = [];
-	this.extPhase = [ 0, 0, 0 ];
-	this.lineMix = [ 0, 0, 0, 0 ];
-	this.pitchEnv = new Envelope(1);
-	this.pitchKF = new KeyFollow();
+	this.extPhase = [0, 0, 0];
+	this.lineMix = [0, 0, 0, 0];
+	this.pitchEnv = new VZEnvelope(1);
+	this.pitchKF = new VZKeyFollow();
 	this.pitchEnvDepth = 63;
 	this.pitchEnvRange = 0;
 	this.pitchAmpSens = 4;
@@ -116,13 +38,13 @@ function VZTone() {
 	this.rateSensitivity = 0;
 	this.vibrato = new VZModulation();
 	this.tremolo = new VZModulation();
-	this.name = 'CAIN INIT';
-	this.rateKF = new RateKF();
+	this.name = "CAIN INIT";
+	this.rateKF = 	{ key: [2, 24, 36, 40, 60, 108], level: [99, 99, 99, 99, 99, 99] }
 	this.octave = 0;
 	this.init();
 }
 
-VZTone.prototype.copyModule = function(source, dest){
+VZTone.prototype.copyModule = function (source, dest) {
 	this.module[dest].active = this.module[source].active;
 	this.module[dest].modSens = this.module[source].modSens;
 	this.module[dest].detune = this.module[source].detune;
@@ -132,80 +54,77 @@ VZTone.prototype.copyModule = function(source, dest){
 	this.module[dest].waveForm = this.module[source].waveForm;
 	this.copyEnv(source, dest);
 	this.copyKF(source, dest);
-}
+};
 
-VZTone.prototype.init = function() {
+VZTone.prototype.init = function () {
 	for (var i = 0; i < 8; i++) {
 		this.module[i] = new VZModule();
-
 	}
 };
 
 // Menu 14
-VZTone.prototype.setModulationSensitivity = function(module, value) {
+VZTone.prototype.setModulationSensitivity = function (module, value) {
 	this.module[module].modSens = value;
 };
 
-
-VZTone.prototype.getOctaveValue = function(){
+VZTone.prototype.getOctaveValue = function () {
 	return Math.abs(this.octave);
-}
+};
 
-VZTone.prototype.getOctavePol = function(){
+VZTone.prototype.getOctavePol = function () {
 	if (this.octave < 0) {
 		return 0;
 	} else {
 		return 1;
 	}
-}
+};
 
-VZTone.prototype.getModulationSensitivity = function(module) {
+VZTone.prototype.getModulationSensitivity = function (module) {
 	return this.module[module].modSens;
 };
 
-VZTone.prototype.setDetune = function(module, value) {
+VZTone.prototype.setDetune = function (module, value) {
 	this.module[module].setDetune(value);
 };
 
-VZTone.prototype.getDetune = function(module) {
+VZTone.prototype.getDetune = function (module) {
 	return this.module[module].detune;
 };
 
-VZTone.prototype.getDetuneCoarse = function(module){
-	return this.module[module].getOctave()*12 + this.module[module].getNote();
-}
+VZTone.prototype.getDetuneCoarse = function (module) {
+	return this.module[module].getOctave() * 12 + this.module[module].getNote();
+};
 
-VZTone.prototype.setDetunePol = function(module, value) {
-	detune = Math.abs(this.module[module].detune);
-	if (value == 0)
-		detune = detune * -1;
+VZTone.prototype.setDetunePol = function (module, value) {
+	let detune = Math.abs(this.module[module].detune);
+	if (value == 0) detune = detune * -1;
 	this.module[module].detune = detune;
 };
 
-VZTone.prototype.getDetuneOctave = function(module) {
+VZTone.prototype.getDetuneOctave = function (module) {
 	return this.module[module].getOctave();
 };
 
-VZTone.prototype.getDetuneNote = function(module) {
+VZTone.prototype.getDetuneNote = function (module) {
 	return this.module[module].getNote();
 };
-VZTone.prototype.getDetuneCent = function(module) {
+VZTone.prototype.getDetuneCent = function (module) {
 	return this.module[module].getCent();
 };
 
-VZTone.prototype.getDetuneFix = function(module) {
+VZTone.prototype.getDetuneFix = function (module) {
 	return this.module[module].detuneFix;
 };
 
-VZTone.prototype.getDetuneRange = function(module) {
+VZTone.prototype.getDetuneRange = function (module) {
 	return this.module[module].detuneRange;
 };
 
-VZTone.prototype.getWaveForm = function(module){
+VZTone.prototype.getWaveForm = function (module) {
 	return this.module[module].waveForm;
 };
 
-VZTone.prototype.getDetunePol = function(module) {
+VZTone.prototype.getDetunePol = function (module) {
 	if (this.module[module].detune < 0) {
 		return 0;
 	} else {
@@ -213,15 +132,15 @@ VZTone.prototype.getDetunePol = function(module) {
 	}
 };
 
-VZTone.prototype.setLevel = function(level) {
+VZTone.prototype.setLevel = function (level) {
 	this.level = level;
 };
 
-VZTone.prototype.getLevel = function() {
+VZTone.prototype.getLevel = function () {
 	return this.level;
 };
 
-VZTone.prototype.setKeyFollowRateNote = function(module, step, rateNote) {
+VZTone.prototype.setKeyFollowRateNote = function (module, step, rateNote) {
 	if (module == 8) {
 		this.pitchKF.rateNote[step] = rateNote;
 	} else {
@@ -229,7 +148,7 @@ VZTone.prototype.setKeyFollowRateNote = function(module, step, rateNote) {
 	}
 };
 
-VZTone.prototype.setVelCurve = function(module, curve) {
+VZTone.prototype.setVelCurve = function (module, curve) {
 	if (module != 8) {
 		this.module[module].velCurve = curve;
 	} else {
@@ -237,7 +156,7 @@ VZTone.prototype.setVelCurve = function(module, curve) {
 	}
 };
 
-VZTone.prototype.getVelCurve = function(module) {
+VZTone.prototype.getVelCurve = function (module) {
 	if (module != 8) {
 		return this.module[module].velCurve;
 	} else {
@@ -245,11 +164,11 @@ VZTone.prototype.getVelCurve = function(module) {
 	}
 };
 
-VZTone.prototype.setVelSens = function(module, sens) {
+VZTone.prototype.setVelSens = function (module, sens) {
 	this.module[module - 1].velSens = sens;
 };
 
-VZTone.prototype.getKeyFollowRateNote = function(module, step) {
+VZTone.prototype.getKeyFollowRateNote = function (module, step) {
 	if (module == 8) {
 		return this.pitchKF.rateNote[step];
 	} else {
@@ -257,7 +176,7 @@ VZTone.prototype.getKeyFollowRateNote = function(module, step) {
 	}
 };
 
-VZTone.prototype.setKeyFollowRate = function(module, step, rate) {
+VZTone.prototype.setKeyFollowRate = function (module, step, rate) {
 	if (module == 8) {
 		this.pitchKF.rate[step] = rate;
 	} else {
@@ -265,7 +184,7 @@ VZTone.prototype.setKeyFollowRate = function(module, step, rate) {
 	}
 };
 
-VZTone.prototype.getKeyFollowRate = function(module, step) {
+VZTone.prototype.getKeyFollowRate = function (module, step) {
 	if (module == 8) {
 		return this.pitchKF.rate[step];
 	} else {
@@ -273,7 +192,7 @@ VZTone.prototype.getKeyFollowRate = function(module, step) {
 	}
 };
 
-VZTone.prototype.setKeyFollowNote = function(module, step, note) {
+VZTone.prototype.setKeyFollowNote = function (module, step, note) {
 	if (module == 8) {
 		this.pitchKF.note[step] = note;
 	} else {
@@ -281,7 +200,7 @@ VZTone.prototype.setKeyFollowNote = function(module, step, note) {
 	}
 };
 
-VZTone.prototype.getKeyFollowNote = function(module, step) {
+VZTone.prototype.getKeyFollowNote = function (module, step) {
 	if (module == 8) {
 		return this.pitchKF.note[step];
 	} else {
@@ -289,7 +208,7 @@ VZTone.prototype.getKeyFollowNote = function(module, step) {
 	}
 };
 
-VZTone.prototype.setKeyFollowLevel = function(module, step, level) {
+VZTone.prototype.setKeyFollowLevel = function (module, step, level) {
 	if (module == 8) {
 		this.pitchKF.level[step] = level;
 	} else {
@@ -297,7 +216,7 @@ VZTone.prototype.setKeyFollowLevel = function(module, step, level) {
 	}
 };
 
-VZTone.prototype.getKeyFollowLevel = function(module, step) {
+VZTone.prototype.getKeyFollowLevel = function (module, step) {
 	if (module == 8) {
 		return this.pitchKF.level[step];
 	} else {
@@ -305,11 +224,11 @@ VZTone.prototype.getKeyFollowLevel = function(module, step) {
 	}
 };
 
-VZTone.prototype.setEnvelopeDepth = function(module, value) {
+VZTone.prototype.setEnvelopeDepth = function (module, value) {
 	this.module[module].envelope.depth = value;
 };
 
-VZTone.prototype.setEnvelopeTime = function(module, step, time) {
+VZTone.prototype.setEnvelopeTime = function (module, step, time) {
 	if (module == 8) {
 		this.pitchEnv.time[step] = time;
 	} else {
@@ -317,7 +236,7 @@ VZTone.prototype.setEnvelopeTime = function(module, step, time) {
 	}
 };
 
-VZTone.prototype.getEnvelopeTime = function(module, step) {
+VZTone.prototype.getEnvelopeTime = function (module, step) {
 	if (module == 8) {
 		return this.pitchEnv.time[step];
 	} else {
@@ -325,17 +244,16 @@ VZTone.prototype.getEnvelopeTime = function(module, step) {
 	}
 };
 
-VZTone.prototype.setEnvelopeLevel = function(module, step, level) {
+VZTone.prototype.setEnvelopeLevel = function (module, step, level) {
 	if (module == 8) {
 		this.pitchEnv.level[step] = level;
 	} else {
-		if (level > 99)
-			level = 99;
+		if (level > 99) level = 99;
 		this.module[module].envelope.level[step] = level;
 	}
 };
 
-VZTone.prototype.getEnvelopeLevel = function(module, step) {
+VZTone.prototype.getEnvelopeLevel = function (module, step) {
 	if (module == 8) {
 		return this.pitchEnv.level[step];
 	} else {
@@ -343,7 +261,7 @@ VZTone.prototype.getEnvelopeLevel = function(module, step) {
 	}
 };
 
-VZTone.prototype.setEnvelopeVelocity = function(module, step, vel) {
+VZTone.prototype.setEnvelopeVelocity = function (module, step, vel) {
 	if (module == 8) {
 		this.pitchEnv.velocity[step] = vel;
 	} else {
@@ -351,7 +269,7 @@ VZTone.prototype.setEnvelopeVelocity = function(module, step, vel) {
 	}
 };
 
-VZTone.prototype.getEnvelopeVelocity = function(module, step) {
+VZTone.prototype.getEnvelopeVelocity = function (module, step) {
 	if (module == 8) {
 		return this.pitchEnv.velocity[step];
 	} else {
@@ -359,14 +277,14 @@ VZTone.prototype.getEnvelopeVelocity = function(module, step) {
 	}
 };
 
-VZTone.prototype.setVelSensitivity = function(module, value) {
+VZTone.prototype.setVelSensitivity = function (module, value) {
 	if (module == 8) {
-		return this.pitchEnv.velocitySens = value;
+		return (this.pitchEnv.velocitySens = value);
 	} else {
 		this.module[module].envelope.velocitySens = value;
 	}
 };
-VZTone.prototype.getVelSensitivity = function(module) {
+VZTone.prototype.getVelSensitivity = function (module) {
 	if (module == 8) {
 		return this.pitchEnv.velocitySens;
 	} else {
@@ -374,14 +292,14 @@ VZTone.prototype.getVelSensitivity = function(module) {
 	}
 };
 
-VZTone.prototype.setEnvSustain = function(module, value) {
+VZTone.prototype.setEnvSustain = function (module, value) {
 	if (module == 8) {
-		return this.pitchEnv.sustain = value;
+		return (this.pitchEnv.sustain = value);
 	} else {
 		this.module[module].envelope.sustain = value;
 	}
 };
-VZTone.prototype.getEnvSustain = function(module) {
+VZTone.prototype.getEnvSustain = function (module) {
 	if (module == 8) {
 		return this.pitchEnv.sustain;
 	} else {
@@ -389,14 +307,14 @@ VZTone.prototype.getEnvSustain = function(module) {
 	}
 };
 
-VZTone.prototype.setEnvEnd = function(module, value) {
+VZTone.prototype.setEnvEnd = function (module, value) {
 	if (module == 8) {
 		this.pitchEnv.end = value;
 	} else {
 		this.module[module].envelope.end = value;
 	}
 };
-VZTone.prototype.getEnvEnd = function(module) {
+VZTone.prototype.getEnvEnd = function (module) {
 	if (module == 8) {
 		return this.pitchEnv.end;
 	} else {
@@ -404,196 +322,196 @@ VZTone.prototype.getEnvEnd = function(module) {
 	}
 };
 
-VZTone.prototype.setLineMix = function(line, value) {
+VZTone.prototype.setLineMix = function (line, value) {
 	this.lineMix[line] = value;
 };
 
-VZTone.prototype.getLineMix = function(line) {
+VZTone.prototype.getLineMix = function (line) {
 	return this.lineMix[line];
 };
 
-VZTone.prototype.toggleModule = function(module) {
+VZTone.prototype.toggleModule = function (module) {
 	this.module[module].toggleState();
 };
 
-VZTone.prototype.getModuleState = function(module) {
+VZTone.prototype.getModuleState = function (module) {
 	return this.module[module].active;
 };
 
-VZTone.prototype.setModMulti = function(type, multi) {
-	if (type == 'vibrato')
-		this.vibrato.multi = multi;
-	if (type == 'tremolo')
-		this.tremolo.multi = multi;
+VZTone.prototype.setModMulti = function (type, multi) {
+	if (type == "vibrato") this.vibrato.multi = multi;
+	if (type == "tremolo") this.tremolo.multi = multi;
 };
 
-VZTone.prototype.setModWave = function(type, multi) {
-	if (type == 'vibrato')
-		this.vibrato.wave = multi;
-	if (type == 'tremolo')
-		this.tremolo.wave = multi;
+VZTone.prototype.setModWave = function (type, multi) {
+	if (type == "vibrato") this.vibrato.wave = multi;
+	if (type == "tremolo") this.tremolo.wave = multi;
 };
 
-
-VZTone.prototype.getModWave = function(type){
-	if (type == 'vibrato')
-		return this.vibrato.wave;
-	if (type == 'tremolo')
-		return this.tremolo.wave;
-}
-
-VZTone.prototype.setModDepth = function(type, multi) {
-	if (type == 'vibrato')
-		this.vibrato.depth = multi;
-	if (type == 'tremolo')
-		this.tremolo.depth = multi;
+VZTone.prototype.getModWave = function (type) {
+	if (type == "vibrato") return this.vibrato.wave;
+	if (type == "tremolo") return this.tremolo.wave;
 };
 
-VZTone.prototype.setModRate = function(type, multi) {
-	if (type == 'vibrato')
-		this.vibrato.rate = multi;
-	if (type == 'tremolo')
-		this.tremolo.rate = multi;
+VZTone.prototype.setModDepth = function (type, multi) {
+	if (type == "vibrato") this.vibrato.depth = multi;
+	if (type == "tremolo") this.tremolo.depth = multi;
 };
 
-VZTone.prototype.setModDelay = function(type, multi) {
-	if (type == 'vibrato')
-		this.vibrato.delay = multi;
-	if (type == 'tremolo')
-		this.tremolo.delay = multi;
+VZTone.prototype.setModRate = function (type, multi) {
+	if (type == "vibrato") this.vibrato.rate = multi;
+	if (type == "tremolo") this.tremolo.rate = multi;
 };
 
-VZTone.prototype.getHexArray = function() {
-	
-	var i;
+VZTone.prototype.setModDelay = function (type, multi) {
+	if (type == "vibrato") this.vibrato.delay = multi;
+	if (type == "tremolo") this.tremolo.delay = multi;
+};
+
+VZTone.prototype.getHexArray = function () {
+	let internalToneData = [];
 
 	// 0 Ext Phase
-	internalToneData[0] = (this.extPhase[2] << 2) + (this.extPhase[1] << 1)
-			+ this.extPhase[0];
+	internalToneData[0] =
+		(this.extPhase[2] << 2) + (this.extPhase[1] << 1) + this.extPhase[0];
 
 	// 1 ..4 Line & WaveForm
-	for (i = 0; i < 4; i++) {
-		line = (this.lineMix[i]<<6) + (this.module[1 + i * 2].waveForm << 3)
-				+ this.module[0 + i * 2].waveForm;
+	for (let i = 0; i < 4; i++) {
+		let line =
+			(this.lineMix[i] << 6) +
+			(this.module[1 + i * 2].waveForm << 3) +
+			this.module[0 + i * 2].waveForm;
 		internalToneData[1 + i] = line;
 	}
 
 	// 5 .. 20 Detune
-	for (i = 0; i < 8; i++) {
-		internalToneData[5 + (2 * i)] = (this.getDetuneCent(i) << 2) + (this.getDetuneFix(i) << 1) + this.getDetuneRange(i);
-		internalToneData[5 + 2 * i + 1] = (this.getDetunePol(i) << 7) + Math.floor(Math.abs(this.getDetune(i) / 64));
+	for (let i = 0; i < 8; i++) {
+		internalToneData[5 + 2 * i] =
+			(this.getDetuneCent(i) << 2) +
+			(this.getDetuneFix(i) << 1) +
+			this.getDetuneRange(i);
+		internalToneData[5 + 2 * i + 1] =
+			(this.getDetunePol(i) << 7) +
+			Math.floor(Math.abs(this.getDetune(i) / 64));
 	}
 
 	// 21 .. 164 Velocity & Rate
-	for (var step = 0; step < 8; step++) {
-		for (var module = 0; module < 9; module++) {
-			rate = internalToneData[21 + step * 18 + module];
-			rate = (rate & 0x80)
-					+ Math.floor(vzTone.getEnvelopeTime(module, step) * 1.2828);
+	for (let step = 0; step < 8; step++) {
+		for (let module = 0; module < 9; module++) {
+			let rate = internalToneData[21 + step * 18 + module];
+			rate =
+				(rate & 0x80) +
+				Math.floor(
+					this.getEnvelopeTime(module, step) * 1.2828
+				);
 			internalToneData[21 + step * 18 + module] = rate;
 
-			if (vzTone.getEnvSustain(module) == step)
-				sustain = 0x80;
-			else
-				sustain = 0;
+			let sustain;
 
+			if (this.getEnvSustain(module) == step) sustain = 0x80;
+			else sustain = 0;
+
+			let level;
 			if (module != 8) {
-				level = Math.floor(vzTone.getEnvelopeLevel(module, step)) + 28;
-				if (level <= 28)
-					level = 0;
+				level =
+					Math.floor(this.getEnvelopeLevel(module, step)) +
+					28;
+				if (level <= 28) level = 0;
 			} else {
-
-				level = Math.floor(vzTone.getEnvelopeLevel(module, step)) + 0x40;
-				if (level < 1)
-					level = 1;
-				if (level > 0x7f)
-					level = 0x7f;
+				level =
+					Math.floor(this.getEnvelopeLevel(module, step)) +
+					0x40;
+				if (level < 1) level = 1;
+				if (level > 0x7f) level = 0x7f;
 			}
 
 			internalToneData[21 + step * 18 + 9 + module] = sustain + level;
 
-			if (vzTone.getEnvelopeVelocity(module, step) == 0)
-				internalToneData[21 + module + 18 * (step)] &= 0x7F;
-			else
-				internalToneData[21 + module + 18 * (step)] |= 0x80;
+			if (this.getEnvelopeVelocity(module, step) == 0)
+				internalToneData[21 + module + 18 * step] &= 0x7f;
+			else internalToneData[21 + module + 18 * step] |= 0x80;
 		}
-
 	}
 
 	// 165 .. 173 Envelope End Step / Amplitude Sensitivity
-
-	for (var i = 0; i < 8; i++) {
-
-		internalToneData[165 + i] = (vzTone.getEnvEnd(i) << 4)
-				+ vzTone.getModulationSensitivity(i);
+	for (let i = 0; i < 8; i++) {
+		internalToneData[165 + i] =
+			(this.getEnvEnd(i) << 4) +
+			this.getModulationSensitivity(i);
 	}
-	internalToneData[165 + 8] = (vzTone.getEnvEnd(8) << 4);
+	internalToneData[165 + 8] = this.getEnvEnd(8) << 4;
 
 	// 174 Total Level
 	internalToneData[174] = 99 - this.getLevel();
 
 	// 175 .. 182 Module on/off & Envelope Depth
-	for (var i = 0; i < 8; i++) {
-		depth = this.module[i].envelope.depth;
+	for (let i = 0; i < 8; i++) {
+		let depth = this.module[i].envelope.depth;
 		if (depth <= 0) {
 			depth = 0x7f;
 		} else {
 			depth = 0x63 - depth;
 		}
-		internalToneData[175 + i] = (((this.module[i].active+1)%2) << 7) + depth;
+		internalToneData[175 + i] =
+			((this.module[i].active + 1) % 2 << 7) + depth;
 	}
 
 	// 183 Pitch Envelope Depth & Range
-	internalToneData[183] = (this.pitchEnvRange << 7)
-			+ (63 - this.pitchEnvDepth);
+	internalToneData[183] =
+		(this.pitchEnvRange << 7) + (63 - this.pitchEnvDepth);
 
 	// 184 .. 279 Key follow Level (Amp)
 	// 280 .. 291 Key Follow Level Pitch
 	var offSetkeyFollow = 184;
-	for (var module = 0; module < 9; module++) {
-		for (var i = 0; i < 6; i++) {
-			if (vzTone.getKeyFollowNote(module, i) > 108)
-				vzTone.setKeyFollowNote(module, i, 108);
-			internalToneData[offSetkeyFollow + module * 12 + 2 * i] = vzTone
-					.getKeyFollowNote(module, i) + 0x0c;
+	for (let module = 0; module < 9; module++) {
+		for (let i = 0; i < 6; i++) {
+			if (this.getKeyFollowNote(module, i) > 108)
+				this.setKeyFollowNote(module, i, 108);
+			internalToneData[offSetkeyFollow + module * 12 + 2 * i] =
+				this.getKeyFollowNote(module, i) + 0x0c;
 			if (module != 8) {
-				internalToneData[offSetkeyFollow + module * 12 + 2 * i + 1] = 99 - vzTone
-						.getKeyFollowLevel(module, i);
-				if (vzTone.getKeyFollowLevel(module, i) == 0)
-					internalToneData[offSetkeyFollow + module * 12 + 2 * i + 1] = 0x7f;
+				internalToneData[offSetkeyFollow + module * 12 + 2 * i + 1] =
+					99 - this.getKeyFollowLevel(module, i);
+				if (this.getKeyFollowLevel(module, i) == 0)
+					internalToneData[
+						offSetkeyFollow + module * 12 + 2 * i + 1
+					] = 0x7f;
 			} else {
-				if (vzTone.getKeyFollowLevel(module, i) > 63)
-					vzTone.setKeyFollowLevel(module, i, 63);
-				if (vzTone.getKeyFollowLevel(module, i) < 0)
-					vzTone.setKeyFollowLevel(module, i, 0);
-				internalToneData[offSetkeyFollow + module * 12 + 2 * i + 1] = 0x3f - vzTone
-						.getKeyFollowLevel(module, i);
+				if (this.getKeyFollowLevel(module, i) > 63)
+					this.setKeyFollowLevel(module, i, 63);
+				if (this.getKeyFollowLevel(module, i) < 0)
+					this.setKeyFollowLevel(module, i, 0);
+				internalToneData[offSetkeyFollow + module * 12 + 2 * i + 1] =
+					0x3f - this.getKeyFollowLevel(module, i);
 			}
 		}
 	}
 
 	// 292 .. 303 Still missing!!! not implemented
-	
-	for (var i = 0; i<6; i++){
-		internalToneData[292+i*2+0]= this.rateKF.key[i]+0x0c ;  
-		level = 0x1e + this.rateKF.level[i];
-		if (this.rateKF.level[i]==0) level = 0;
-		internalToneData[292+i*2+1]= level ;  
+	for (let i = 0; i < 6; i++) {
+		internalToneData[292 + i * 2 + 0] = this.rateKF.key[i] + 0x0c;
+		let level = 0x1e + this.rateKF.level[i];
+		if (this.rateKF.level[i] == 0) level = 0;
+		internalToneData[292 + i * 2 + 1] = level;
 	}
 
 	// 304 .. 311 Velocity Curve & Sensitivity for Envelopes (1-06)
-	for (var i = 0; i < 8; i++) {
-		internalToneData[304 + i] = this.module[i].envelope.velocitySens
-				+ (this.module[i].velCurve << 5);
+	for (let i = 0; i < 8; i++) {
+		internalToneData[304 + i] =
+			this.module[i].envelope.velocitySens +
+			(this.module[i].velCurve << 5);
 	}
 
 	// 312 .. 313 Velocity Sensitivity (Pitch & Rate)
-
 	internalToneData[312] = (this.pitchCurve << 5) + this.pitchEnv.velocitySens;
 	internalToneData[313] = (this.rateCurve << 5) + this.rateSensitivity;
 
 	// 314..321 Vibrato & Tremolo
-	internalToneData[314] = (this.getOctavePol() << 7) + (this.getOctaveValue() << 5) + (this.vibrato.multi << 3) + this.vibrato.wave;
+	internalToneData[314] =
+		(this.getOctavePol() << 7) +
+		(this.getOctaveValue() << 5) +
+		(this.vibrato.multi << 3) +
+		this.vibrato.wave;
 	internalToneData[315] = Math.floor(this.vibrato.depth * 1.2828);
 	internalToneData[316] = Math.floor(this.vibrato.rate * 1.2828);
 	internalToneData[317] = Math.floor(this.vibrato.delay * 1.2828);
@@ -603,81 +521,78 @@ VZTone.prototype.getHexArray = function() {
 	internalToneData[321] = Math.floor(this.tremolo.delay * 1.2828);
 
 	// 322 .. 335 Voice Name
-	for (i = 0; i < 14; i++) {
-		character = this.name.charCodeAt(i);
-		if (character == NaN)
-			character = 32;
+	for (let i = 0; i < 14; i++) {
+		let character = this.name.charCodeAt(i);
+		if (isNaN(character)) character = 32;
 		internalToneData[322 + i] = character;
 	}
 
+	return internalToneData;
 };
 
-VZTone.prototype.initFromHexArray = function(hexArray) {
-	
-	var i;
-
+VZTone.prototype.initFromHexArray = function (hexArray) {
 	// 0 Ext Phase
 	this.extPhase[0] = hexArray[0] & 0x01;
 	this.extPhase[1] = (hexArray[0] & 0x02) >> 1;
 	this.extPhase[2] = (hexArray[0] & 0x04) >> 2;
-	
 
 	// 1 ..4 Line & WaveForm
-	for (i = 0; i < 4; i++) {
-		this.lineMix[i] = (hexArray[1+i] & 0xc0) >> 6;
-		this.module[1 + i * 2].waveForm = (hexArray[1+i] & 0x38) >> 3;
-		this.module[0 + i * 2].waveForm = (hexArray[1+i] & 0x07);
+	for (let i = 0; i < 4; i++) {
+		this.lineMix[i] = (hexArray[1 + i] & 0xc0) >> 6;
+		this.module[1 + i * 2].waveForm = (hexArray[1 + i] & 0x38) >> 3;
+		this.module[0 + i * 2].waveForm = hexArray[1 + i] & 0x07;
 	}
 
 	// 5 .. 20 Detune
-	for (i = 0; i < 8; i++) {
-		this.setDetune(i,(hexArray[5 + (2 * i)] >> 2)+(hexArray[5 + 2 * i + 1]& 0x7F)*64);
-		this.module[i].detuneFix = ((hexArray[5 + (2 * i)] & 0x02) >> 1);
-		this.module[i].detuneRange =(hexArray[5 + (2 * i)] & 0x01) ;
-		this.setDetunePol(i, (hexArray[5 + 2 * i + 1]& 0x80) >> 7);
-	} 
+	for (let i = 0; i < 8; i++) {
+		this.setDetune(
+			i,
+			(hexArray[5 + 2 * i] >> 2) + (hexArray[5 + 2 * i + 1] & 0x7f) * 64
+		);
+		this.module[i].detuneFix = (hexArray[5 + 2 * i] & 0x02) >> 1;
+		this.module[i].detuneRange = hexArray[5 + 2 * i] & 0x01;
+		this.setDetunePol(i, (hexArray[5 + 2 * i + 1] & 0x80) >> 7);
+	}
 
 	// 21 .. 164 Velocity & Rate
-	var sust = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+	var sust = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
 	for (var step = 0; step < 8; step++) {
 		for (var module = 0; module < 9; module++) {
-			
-			this.setEnvelopeTime(module, step, Math.floor((hexArray[21 + step * 18 + module]&0x7f)/1.2828));
+			this.setEnvelopeTime(
+				module,
+				step,
+				Math.floor((hexArray[21 + step * 18 + module] & 0x7f) / 1.2828)
+			);
 			level = hexArray[21 + step * 18 + 9 + module] & 0x7f;
 			if (module != 8) {
-				
-					
-				this.module[module].envelope.velocity[step] = (hexArray[21 + step * 18 + module] & 0x80 ) >>7;
+				this.module[module].envelope.velocity[step] =
+					(hexArray[21 + step * 18 + module] & 0x80) >> 7;
 				level -= 0x1d;
-				if (level <0)
-					level = 0;
+				if (level < 0) level = 0;
 			} else {
-				
-					
-				this.pitchEnv.velocity[step] = (hexArray[21 + step * 18 + module] & 0x80 ) >>7;
+				this.pitchEnv.velocity[step] =
+					(hexArray[21 + step * 18 + module] & 0x80) >> 7;
 				level -= 64;
 			}
-			
+
 			this.setEnvelopeLevel(module, step, level);
-			
+
 			if ((hexArray[21 + step * 18 + 9 + module] & 0x80) != 0)
 				sust[module] = step;
-	
 		}
-		
 	}
-	for (module = 0 ; module <9; module++){
-	if (module !=8) {
-		this.module[module].envelope.sustain = sust[module];
-		}else {
+	for (let module = 0; module < 9; module++) {
+		if (module != 8) {
+			this.module[module].envelope.sustain = sust[module];
+		} else {
 			this.pitchEnv.sustain = sust[module];
 		}
 	}
 	// 165 .. 173 Envelope End Step / Amplitude Sensitivity
 
-	for (var i = 0; i < 9; i++) {
-		this.setEnvEnd(i, hexArray[165 + i]>>4);
-		if (i == 8){
+	for (let i = 0; i < 9; i++) {
+		this.setEnvEnd(i, hexArray[165 + i] >> 4);
+		if (i == 8) {
 			this.pitchAmpSens = hexArray[165 + i] & 0x0f;
 		} else {
 			this.module[i].modSens = hexArray[165 + i] & 0x0f;
@@ -688,12 +603,11 @@ VZTone.prototype.initFromHexArray = function(hexArray) {
 	this.level = 99 - hexArray[174];
 
 	// 175 .. 182 Module on/off & Envelope Depth
-	for (var i = 0; i < 8; i++) {
-		var depth = 0x63-hexArray[175 + i];
-		if (hexArray[175 + i] == 0x7f) 
-			depth = 0x00;
+	for (let i = 0; i < 8; i++) {
+		var depth = 0x63 - hexArray[175 + i];
+		if (hexArray[175 + i] == 0x7f) depth = 0x00;
 		this.module[i].envelope.depth = depth;
-		this.module[i].active = ((hexArray[175 + i]>>7) +1 )% 2;
+		this.module[i].active = ((hexArray[175 + i] >> 7) + 1) % 2;
 	}
 
 	// 183 Pitch Envelope Depth & Range
@@ -703,84 +617,102 @@ VZTone.prototype.initFromHexArray = function(hexArray) {
 	// 184 .. 279 Key follow Level (Amp)
 	// 280 .. 291 Key Follow Level Pitch
 
-	for (var module = 0; module < 9; module++) {
-		for (var i = 0; i < 6; i++) {
-			vzTone.setKeyFollowNote(module, i, hexArray[184 + module * 12 + 2 * i]-0x0c);
-			 
+	for (let module = 0; module < 9; module++) {
+		for (let i = 0; i < 6; i++) {
+			this.setKeyFollowNote(
+				module,
+				i,
+				hexArray[184 + module * 12 + 2 * i] - 0x0c
+			);
 			if (module != 8) {
 				var level = 99 - hexArray[184 + module * 12 + 2 * i + 1];
-				if (level < 0) 
-					level = 0;
-				vzTone.setKeyFollowLevel(module, i, level)
+				if (level < 0) level = 0;
+				this.setKeyFollowLevel(module, i, level);
 			} else {
-				vzTone.setKeyFollowLevel(module, i, 64-hexArray[184 + module * 12 + 2 * i + 1])
+				this.setKeyFollowLevel(
+					module,
+					i,
+					64 - hexArray[184 + module * 12 + 2 * i + 1]
+				);
 			}
 		}
 	}
 
 	// 292 .. 303 Still missing!!! not implemented
-	
-	for (var i = 0; i <6; i++){
-		this.rateKF.key[i] = hexArray[292+i*2] - 0x0c;
-		this.rateKF.level[i] = Math.floor(hexArray[292+i*2+1] / 1.2828);
+
+	for (let i = 0; i < 6; i++) {
+		this.rateKF.key[i] = hexArray[292 + i * 2] - 0x0c;
+		this.rateKF.level[i] = Math.floor(hexArray[292 + i * 2 + 1] / 1.2828);
 	}
 
 	// 304 .. 311 Velocity Curve & Sensitivity
-	for (var i = 0; i < 8; i++) {
-		 this.module[i].envelope.velocitySens = hexArray[304 + i] & 0x1f;
-		 this.module[i].velCurve = (hexArray[304 + i] >> 5);
-				
+	for (let i = 0; i < 8; i++) {
+		this.module[i].envelope.velocitySens = hexArray[304 + i] & 0x1f;
+		this.module[i].velCurve = hexArray[304 + i] >> 5;
 	}
 
 	// 312 .. 313 Velocity Sensitivity (Pitch & Rate)
 
 	this.pitchEnv.velocitySens = hexArray[312] & 0x1f;
-	this.pitchCurve = (hexArray[312] >> 5);
+	this.pitchCurve = hexArray[312] >> 5;
 	this.rateSensitivity = hexArray[313] & 0x1f;
-	this.rateCurve = (hexArray[313] >> 5);
+	this.rateCurve = hexArray[313] >> 5;
 
 	// 314..321 Vibrato & Tremolo
-	this.vibrato.multi = ((hexArray[314] & 0x08)>>3);
-	this.vibrato.wave = (hexArray[314] & 0x03);
-	this.octave = ((hexArray[314] & 0x60 )>>5);
-	if ((hexArray[314] & 0x80 ) == 0)
-		this.octave = this.octave * -1;
-	this.vibrato.oct = ((hexArray[314] & 0x60)>>7);
+	this.vibrato.multi = (hexArray[314] & 0x08) >> 3;
+	this.vibrato.wave = hexArray[314] & 0x03;
+	this.octave = (hexArray[314] & 0x60) >> 5;
+	if ((hexArray[314] & 0x80) == 0) this.octave = this.octave * -1;
+	this.vibrato.oct = (hexArray[314] & 0x60) >> 7;
 	this.vibrato.depth = Math.floor(hexArray[315] / 1.2828);
-	this.vibrato.rate  = Math.floor( hexArray[316] / 1.2828);
-	this.vibrato.delay  = Math.floor( hexArray[317] / 1.2828);
-	this.tremolo.multi = ((hexArray[318] & 0x08)>>3);
-	this.tremolo.wave = (hexArray[318] & 0x03);
+	this.vibrato.rate = Math.floor(hexArray[316] / 1.2828);
+	this.vibrato.delay = Math.floor(hexArray[317] / 1.2828);
+	this.tremolo.multi = (hexArray[318] & 0x08) >> 3;
+	this.tremolo.wave = hexArray[318] & 0x03;
 	this.tremolo.depth = Math.floor(hexArray[319] / 1.2828);
-	this.tremolo.rate  = Math.floor( hexArray[320] / 1.2828);
-	this.tremolo.delay  = Math.floor( hexArray[321] / 1.2828);
+	this.tremolo.rate = Math.floor(hexArray[320] / 1.2828);
+	this.tremolo.delay = Math.floor(hexArray[321] / 1.2828);
 
 	// 322 .. 335 Voice Name
-	this.name = '';
-	for (i = 0; i < 14; i++) {
+	this.name = "";
+	for (let i = 0; i < 14; i++) {
 		this.name += String.fromCharCode(hexArray[322 + i]);
 	}
-
 };
 
-VZTone.prototype.copyEnv = function(source, destination) {
-	this.module[destination].envelope.velocitySens = this.module[source].envelope.velocitySens;
-	this.module[destination].envelope.sustain = this.module[source].envelope.sustain;
+VZTone.prototype.copyEnv = function (source, destination) {
+	this.module[destination].envelope.velocitySens = this.module[
+		source
+	].envelope.velocitySens;
+	this.module[destination].envelope.sustain = this.module[
+		source
+	].envelope.sustain;
 	this.module[destination].envelope.end = this.module[source].envelope.end;
-	for (this.i = 0; this.i < 8; this.i++) {
-		this.module[destination].envelope.level[this.i] = this.module[source].envelope.level[this.i];
-		this.module[destination].envelope.time[this.i] = this.module[source].envelope.time[this.i];
-		this.module[destination].envelope.velocity[this.i] = this.module[source].envelope.velocity[this.i];
+	for (let i = 0; i < 8; i++) {
+		this.module[destination].envelope.level[i] = this.module[
+			source
+		].envelope.level[i];
+		this.module[destination].envelope.time[i] = this.module[
+			source
+		].envelope.time[i];
+		this.module[destination].envelope.velocity[i] = this.module[
+			source
+		].envelope.velocity[i];
 	}
 };
 
-
-VZTone.prototype.copyKF = function(source, destination) {
-	for (this.i = 0; this.i < 6; this.i++) {
-		this.module[destination].keyFollow.note[this.i] = this.module[source].keyFollow.note[this.i];
-		this.module[destination].keyFollow.level[this.i] = this.module[source].keyFollow.level[this.i];
-//		this.module[destination].keyFollow.rate[this.i] = this.module[source].keyFollow.rate[this.i];
-//		this.module[destination].keyFollow.rateNote[this.i] = this.module[source].keyFollow.rateNote[this.i];
-
+VZTone.prototype.copyKF = function (source, destination) {
+	for (let i = 0; i < 6; i++) {
+		this.module[destination].keyFollow.note[i] = this.module[
+			source
+		].keyFollow.note[i];
+		this.module[destination].keyFollow.level[i] = this.module[
+			source
+		].keyFollow.level[i];
+		//		this.module[destination].keyFollow.rate[i] = this.module[source].keyFollow.rate[i];
+		//		this.module[destination].keyFollow.rateNote[i] = this.module[source].keyFollow.rateNote[i];
 	}
 };
+
+export { VZTone };
+

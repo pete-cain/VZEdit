@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Preact / htm example</title>
+		<link rel="stylesheet" type="text/css" href="VZWaveComponent.css" />
+	</head>
+	<body>
+		<p>See source code for details</p>
+		<div id="app"></div>
+		<div id="events"></div>
+		<script type="module" src="VZWaveComponent.js"></script>
+		<script type="module">
+			import {
+				render,
+				html,
+			} from "https://unpkg.com/htm/preact/standalone.module.js";
+			import { VZWaveComponent } from "./VZWaveComponent.js";
+
+			const onWaveformChanged = (waveform, name) => {
+				document.getElementById(
+					"events"
+				).innerHTML = `<p>You changed the waveform to ${name}</p>`;
+			};
+
+			render(
+				html`<${VZWaveComponent} onChange=${onWaveformChanged} />`,
+				document.getElementById("app")
+			);
+		</script>
+	</body>
+</html>

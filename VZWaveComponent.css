@@ -1,0 +1,25 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	overflow: hidden;
+	font-family: Verdana;
+	background-color: #EFEFEF;
+	color: #333333;
+	font-size: 16px;
+}
+
+canvas {
+	background-color: #c0c0c0;
+	padding: 2px;
+}
+
+img.waveBtn {
+	width: 20px;
+	height: 34px;
+}
+
+span {
+	vertical-align: middle;
+}
